@@ -1,7 +1,7 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "compile": "npx hardhat ignition deploy ./ignition/modules/Lock.ts  --network Ganache"
+    "compile": "npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
