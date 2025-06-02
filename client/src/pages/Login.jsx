@@ -3,6 +3,7 @@ import theme from "../assets/palette";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Livros from "../assets/livros.jpg";
+import { useAuthStore } from "../store/useAuthStore";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

@@ -3,9 +3,10 @@ import { createRoot } from "react-dom/client";
 import Login from "./pages/Login.jsx";
 import Emprestimos from "./pages/Emprestimos.jsx";
 import BrowseLibrary from "./pages/Catalogo.jsx";
+import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowseLibrary />
+    <App />
   </StrictMode>
 );
