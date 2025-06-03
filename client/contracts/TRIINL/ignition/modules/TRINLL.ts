@@ -3,8 +3,9 @@
 
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const TrinllModule = buildModule("TrinllModule", (m) => {
-  const trinll = m.contract("TRINLL");
+const TrinllModule = buildModule("TRIINL", (m) => {
+  const defaultAdminGanache = m.getAccount(0);
+  const trinll = m.contract("TRIINL",[defaultAdminGanache],{});
 
   return { trinll };
 });

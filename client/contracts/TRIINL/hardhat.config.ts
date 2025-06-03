@@ -9,7 +9,7 @@ const privateKeys = (process.env.PRIVATE_KEY || "").split(",").map(k => k.trim()
 
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.28",
+  solidity: "0.8.27",
   networks: {
     Ganache: {
       url: process.env.PROVIDER_URL,

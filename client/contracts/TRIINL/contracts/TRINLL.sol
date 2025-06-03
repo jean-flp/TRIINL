@@ -7,7 +7,7 @@ import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/
 import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
-contract LibraryToken is
+contract TRIINL is
     ERC1155,
     AccessControl,
     ERC1155Pausable,
@@ -56,6 +56,7 @@ contract LibraryToken is
     event LoanApproved(uint256 loanId, address libraryFrom);
     event LoanReturned(uint256 loanId, address libraryFrom);
     event BookCreated(uint256 bookId, string title, string uri);
+    event BookRestock(uint256 bookId, address libraryFrom, uint256 amount);
     event LibraryRegistered(address libraryAddress, string sigla);
 
     constructor(address defaultAdmin)
@@ -170,8 +171,14 @@ contract LibraryToken is
             fullURI,
             msg.sender
         );
-        _mint(msg.sender, id, amount, "0x");
+        _mint(msg.sender, id, amount, "");
         emit BookCreated(id, title, fullURI);
+    }
+
+    function mintRestock(uint256 amount,uint256 id) external onlyRole(LIBRARY_ROLE){
+        require(books[id].instituicao == msg.sender,"Book institution is different from sender");//pertencimento da token ao sender
+        _mint(msg.sender, id, amount, "");
+        emit BookRestock(id,msg.sender,amount);
     }
 
     function getBook(uint256 bookId) external view returns (Book memory) {
@@ -214,14 +221,23 @@ contract LibraryToken is
             "Insufficient books"
         );
 
+        // Queima os tokens correspondentes ao empréstimo
+        _burn(msg.sender, loan.bookId, loan.amount);
+
+        // Atualiza o status do empréstimo para APPROVED
         loan.status = 1;
         emit LoanApproved(loanId, msg.sender);
     }
 
     function returnLoan(uint256 loanId) external onlyRole(USER_ROLE) {
+        //require(loanRequests[loanId]== true); verificar depois a criação para impedir em chamadas de loan que nao existem assim user mintando
         LoanRequest storage loan = loanRequests[loanId];
         require(loan.user == msg.sender && loan.status == 1, "Invalid return");
 
+        // Mintar novamente os tokens para a biblioteca
+        _mint(loan.libraryFrom, loan.bookId, loan.amount, "");
+
+        // Atualiza o status do empréstimo para RETURNED
         loan.status = 2;
         emit LoanReturned(loanId, loan.libraryFrom);
     }

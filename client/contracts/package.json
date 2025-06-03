@@ -1,7 +1,8 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "compile": "npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache"
+    "compile": "cd TRIINL && npx hardhat compile ",
+    "deploy":"cd TRIINL && npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
