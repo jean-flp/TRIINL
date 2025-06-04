@@ -14,10 +14,11 @@
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
-    "dotenv": "^16.5.0",
-    "ethers": "^6.14.3",
+    "@toolpad/core": "^0.11.0",
+    "ethers": "^5.8.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
     "web3": "^4.16.0",
     "zustand": "^5.0.5"
   },

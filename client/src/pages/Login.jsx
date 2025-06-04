@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import theme from "../assets/palette";
 import TextField from "@mui/material/TextField";
@@ -7,6 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const setUser = useAuthStore((state) => state.setUser);
 
   const handleLogin = async () => {
@@ -64,3 +66,24 @@ function Login() {
 }
 
 export default Login;
+
+
+// import {useStore} from "../store/userLogin";
+
+// export default function Login() {
+//   const { connectWallet, currentAccount, isConnected, disconnectWallet} = useStore();
+
+//   return (
+//     <div>
+//       {isConnected ? (
+//         <p>Conta conectada: {currentAccount}</p>
+//       ) : (
+//         <button onClick={connectWallet}>Conectar Carteira</button>
+//       )}
+//       <br></br>
+//       {
+//         <button onClick={disconnectWallet}>Disconnect Carteira</button>
+//       }
+//     </div>
+//   );
+// }
