@@ -11,7 +11,7 @@ import Tooltip from '@mui/material/Tooltip';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
-import user from "./userButton"
+import accountButton from "./userButton"
 import landingPage from '../pages/landingPage';
 
 
@@ -43,7 +43,7 @@ function CustomAppTitle() {
 }
 export default function Layout() {
   return (
-    <DashboardLayout slots={{appTitle:CustomAppTitle,sidebarFooter:sidebarFooter,toolbarAccount:user}}>
+    <DashboardLayout slots={{appTitle:CustomAppTitle,sidebarFooter:sidebarFooter,toolbarAccount:accountButton}}>
       <Outlet />
     </DashboardLayout>
   );

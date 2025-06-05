@@ -1,15 +1,8 @@
 import { create } from "zustand";
-import { ethers } from "../../node_modules/ethers";
-import {contractABI} from "../abi/contractABI";
-console.log("ABI carregado:", contractABI);
+import { ethers } from "ethers";
+import { getContract } from "../utils/web3";
 
-
-
-
-const contractAddress = import.meta.env.VITE_CONTRACT
-console.log("Contract Address:", contractAddress);
-
-export const useStore = create((set) => ({
+ export const userStore = create((set) => ({
   currentAccount: null,
   contract: null,
   isConnected: false,
@@ -22,9 +15,9 @@ export const useStore = create((set) => ({
 
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = await provider.getSigner();
-    const contrato = new ethers.Contract(contractAddress, contractABI, signer);
-
+    const signer = provider.getSigner();
+    const contrato = await getContract(signer);
+    console.log("Conta:",accounts[0]);
     set({
       currentAccount: accounts[0],
       contract: contrato,
