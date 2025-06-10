@@ -1,0 +1,24 @@
+cls
+(await ethers.provider.getBlockNumber())
+}
+  console.log(acc.address, (await acc.getBalance()).toString())
+for (const acc of accounts) {
+const accounts = await ethers.getSigners()
+// Saldos das contas
+// Chai(await ethers.provider.getNetwork()).chainId
+(await ethers.provider.getGasPrice()).toString()
+// Gas price atual
+(await ethers.provider.getBlockNumber())
+// Número do bloco mais recente
+s
+accounts
+const accounts = await ethers.getSigners()
+accounts
+const accounts = await ethers.getSigners()
+});
+  }
+    console.log(account.address);
+  for (const account of accounts) {
+  const accounts = await hre.ethers
+task(taskArgs, hre) => {
+const { task } = require("hardhat/config");

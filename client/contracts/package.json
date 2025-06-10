@@ -3,7 +3,7 @@
   "scripts": {
     "compile": "cd TRIINL && npx hardhat compile ",
     "ganache":" start cmd /k npx ganache --wallet.totalAccounts=10 --wallet.defaultBalance=1000 --port=7545 --chain.chainId=1337 --wallet.mnemonic=\"trash meat globe gasp path detect gain lounge cotton learn talk police\" ",
-    "deploy": "cd TRIINL &&  echo y | npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache > endereco_contrato.txt"
+    "deploy": "cd TRIINL &&  npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

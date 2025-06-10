@@ -2,7 +2,8 @@
   "scripts": {
     "app":"concurrently \"cd client && npm run dev\" \"cd client/contracts && npm run ganache \" ",
     "deploy-contract":"cd client/contracts && npm run deploy",
-    "install-all":"concurrently \"cd client && npm i --force\" \"cd client/contracts && npm i --force\" "
+    "install-all":"concurrently \"cd client && npm i --force\" \"cd client/contracts && npm i --force\" ",
+    "blockchainState":"cd client/contracts/TRIINL && npx hardhat run test.js --network Ganache"
   },
   "dependencies": {
     "concurrently": "^9.1.2"
