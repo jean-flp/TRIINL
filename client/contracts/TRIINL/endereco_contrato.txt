@@ -1,0 +1,22 @@
+[?25l[2K[1G[36m?[39m [1mConfirm deploy to network Ganache (1337)?[22m [90m»[39m [90m(y/N)[39m[2K[1G[2K[1G[32m√[39m [1mConfirm deploy to network Ganache (1337)?[22m [90m...[39m yes
+[?25hHardhat Ignition starting for [ TRIINL ]...[2K[1GHardhat Ignition 🚀
+
+Deploying [ TRIINL ]
+
+Batch #1
+  Executing TRIINL#TRIINL...
+
+[3A[0JBatch #1
+  Executing TRIINL#TRIINL...
+
+[3A[0JBatch #1
+  Executed TRIINL#TRIINL
+
+[3A[0JBatch #1
+  Executed TRIINL#TRIINL
+
+[ TRIINL ] successfully deployed 🚀
+
+Deployed Addresses
+
+TRIINL#TRIINL - 0x56cbA043CD6c73Dc9e08f65c7BF9e9067E7Dcfc7

@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "app":"concurrently \"cd client && npm run dev\" \"cd client/contracts && npm run ganache \" ",
+    "deploy-contract":"cd client/contracts && npm run deploy",
+    "install-all":"concurrently \"cd client && npm i --force\" \"cd client/contracts && npm i --force\" "
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

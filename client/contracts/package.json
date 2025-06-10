@@ -2,7 +2,8 @@
   "name": "hardhat-project",
   "scripts": {
     "compile": "cd TRIINL && npx hardhat compile ",
-    "deploy":"cd TRIINL && npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache"
+    "ganache":" start cmd /k npx ganache --wallet.totalAccounts=10 --wallet.defaultBalance=1000 --port=7545 --chain.chainId=1337 --wallet.mnemonic=\"trash meat globe gasp path detect gain lounge cotton learn talk police\" ",
+    "deploy": "cd TRIINL &&  echo y | npx hardhat ignition deploy ./ignition/modules/TRINLL.ts  --network Ganache > endereco_contrato.txt"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
@@ -10,6 +11,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.3.0",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "ganache": "^7.9.2"
   }
 }

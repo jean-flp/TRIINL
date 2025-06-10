@@ -4,16 +4,32 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+//key -> 0x<key1>,0x<key2>,0x<key3>, ... ,0x<key_n>
+//const privateKeys = (process.env.PRIVATE_KEY || "").split(",").map(k => k.trim());
 
-const privateKeys = (process.env.PRIVATE_KEY || "").split(",").map(k => k.trim());
+//mnemonic -> trash meat globe gasp path detect gain lounge cotton learn talk police
+const MNEMONIC = process.env.MNEMONIC || "";
 
+// key
+// const config: HardhatUserConfig = {
+//   solidity: "0.8.27",
+//   networks: {
+//     Ganache: {
+//       url: process.env.PROVIDER_URL,
+//       accounts: privateKeys,
+//     }
+//   }
+// };
 
+//mnemonic
 const config: HardhatUserConfig = {
   solidity: "0.8.27",
   networks: {
     Ganache: {
       url: process.env.PROVIDER_URL,
-      accounts: privateKeys,
+      accounts:{
+        mnemonic: MNEMONIC
+      } 
     }
   }
 };
