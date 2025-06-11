@@ -38,10 +38,10 @@ export const useAuthStore = create((set) => ({
          variavel = grantRole(contract,admin,account,signer);
         break;
       case "library":
-         variavel = grantRole(contract,admin,account,signer);
+         variavel = grantRole(contract,library,account,signer);
         break;
       case "user":
-        variavel =  grantRole(contract,admin,account,signer);
+        variavel =  grantRole(contract,user,account,signer);
         break;
       default:
         break;

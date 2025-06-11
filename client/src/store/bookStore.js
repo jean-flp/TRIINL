@@ -7,15 +7,15 @@ export const bookStore = create((set) => ({
     totalBooks: 0,
     fetchBooks: async (contract) => {
         try {
-            const books = [];
+            const books_array = [];
             const totalBook = await getNextBookId(contract);
             let temp;
             for (let index = 0; index < totalBook; index++) {
                 temp = await getBook(contract, index);
-                books.push(temp);
+                books_array.push(temp);
             }
             set({
-                books: books,
+                books: books_array,
                 totalBooks: totalBook,
             });
         } catch (err) {
