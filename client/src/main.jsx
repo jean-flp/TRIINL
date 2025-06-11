@@ -6,19 +6,15 @@
 // import BrowseLibrary from "./pages/Catalogo.jsx";
 // import App from "./App.jsx";
 
-
 // createRoot(document.getElementById("root")).render(
 //   <StrictMode>
-//     <App />  
+//     <App />
 //   </StrictMode>
 // );
 
-
-
-
 //2.
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { StrictMode } from "react";
 
 import App from "./dashboardLayout";
@@ -27,40 +23,44 @@ import Login from "./pages/Login";
 import Catalogo from "./pages/Catalogo";
 import Emprestimos from "./pages/Emprestimos";
 import landingPage from "./pages/landingPage";
+import BookForm from "./pages/CadastroLivro";
 
 const router = createBrowserRouter([
   {
     Component: App,
     children: [
       {
-        path: '/',
+        path: "/",
         Component: Layout,
         children: [
           {
-            index:true,
+            index: true,
             Component: landingPage,
           },
           {
-            path: '/login',
+            path: "/login",
             Component: Login,
           },
           {
-            path: '/catalogo',
+            path: "/catalogo",
             Component: Catalogo,
           },
           {
-            path: '/emprestimos',
+            path: "/emprestimos",
             Component: Emprestimos,
           },
+          {
+            path: "/cadastroLivro",
+            Component: BookForm,
+          },
         ],
-      }
-    ]
-
+      },
+    ],
   },
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-      <RouterProvider router={router} />
+    <RouterProvider router={router} />
   </StrictMode>
 );
