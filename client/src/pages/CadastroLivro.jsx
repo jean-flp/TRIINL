@@ -1,10 +1,12 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 
 const schema = yup.object().shape({
   title: yup.string().required("Título é obrigatório"),
@@ -12,18 +14,28 @@ const schema = yup.object().shape({
   isbn: yup.string().required("ISBN é obrigatório"),
   doi: yup.string().required("DOI é obrigatório"),
   ano: yup.string().required("Ano é obrigatório"),
-  uri: yup
-    .string()
-    .url("URI deve ser um URL válido")
-    .required("URI é obrigatório"),
   instituicao: yup.string().required("Instituição é obrigatória"),
+  capa: yup
+    .mixed()
+    .required("A imagem da capa é obrigatória")
+    .test(
+      "fileType",
+      "Apenas imagens são permitidas",
+      (value) =>
+        value &&
+        value.length &&
+        ["image/jpeg", "image/png"].includes(value[0]?.type)
+    ),
 });
 
 const BookForm = () => {
+  const [preview, setPreview] = useState(null);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
+    control,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -71,19 +83,50 @@ const BookForm = () => {
           fullWidth
         />
         <TextField
-          {...register("uri")}
-          label="URI"
-          error={!!errors.uri}
-          helperText={errors.uri?.message}
-          fullWidth
-        />
-        <TextField
           {...register("instituicao")}
           label="Instituição"
           error={!!errors.instituicao}
           helperText={errors.instituicao?.message}
           fullWidth
         />
+        <Controller
+          name="capa"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Button variant="outlined" component="label">
+                Upload da Capa
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPreview(URL.createObjectURL(file));
+                      field.onChange(e.target.files);
+                    }
+                  }}
+                />
+              </Button>
+              {errors.capa && (
+                <Box color="error.main" fontSize="0.8rem" mt={1}>
+                  {errors.capa.message}
+                </Box>
+              )}
+              {preview && (
+                <Box mt={2}>
+                  <img
+                    src={preview}
+                    alt="Prévia da capa"
+                    style={{ maxWidth: "200px", borderRadius: "4px" }}
+                  />
+                </Box>
+              )}
+            </>
+          )}
+        />
+
         <Button type="submit" variant="contained">
           Cadastrar Livro
         </Button>
