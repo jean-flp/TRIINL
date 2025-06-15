@@ -7,6 +7,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import { bookStore } from "../store/bookStore";
+import { userStore } from "../store/userLogin";
 
 const schema = yup.object().shape({
   title: yup.string().required("Título é obrigatório"),
@@ -14,7 +16,6 @@ const schema = yup.object().shape({
   isbn: yup.string().required("ISBN é obrigatório"),
   doi: yup.string().required("DOI é obrigatório"),
   ano: yup.string().required("Ano é obrigatório"),
-  instituicao: yup.string().required("Instituição é obrigatória"),
   capa: yup
     .mixed()
     .required("A imagem da capa é obrigatória")
@@ -26,10 +27,17 @@ const schema = yup.object().shape({
         value.length &&
         ["image/jpeg", "image/png"].includes(value[0]?.type)
     ),
+  quantidade: yup
+    .number("Quantidade precisa ser um número")
+    .integer("Quantidade tem que ser um número")
+    .min(1, "A quantidade mínima é 1"),
 });
 
 const BookForm = () => {
+  const { books, addBook } = bookStore();
   const [preview, setPreview] = useState(null);
+  const contract = userStore((state) => state.contract);
+  const currentAccount = userStore((state) => state.currentAccount);
 
   const {
     register,
@@ -40,8 +48,23 @@ const BookForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    const book = {
+      title: data.title,
+      author: data.author,
+      isbn: data.isbn,
+      doi: data.doi,
+      ano: data.ano,
+      uriSuffix: (data.capa = "urlTeste"),
+      amount: data.quantidade,
+    };
+
+    try {
+      addBook(contract, currentAccount, book);
+      console.log("Deu certo o cadastro", book);
+    } catch (err) {
+      console.error("Erro ao salvar livro:", err);
+    }
   };
 
   return (
@@ -82,13 +105,6 @@ const BookForm = () => {
           helperText={errors.ano?.message}
           fullWidth
         />
-        <TextField
-          {...register("instituicao")}
-          label="Instituição"
-          error={!!errors.instituicao}
-          helperText={errors.instituicao?.message}
-          fullWidth
-        />
         <Controller
           name="capa"
           control={control}
@@ -125,6 +141,13 @@ const BookForm = () => {
               )}
             </>
           )}
+        />
+        <TextField
+          {...register("quantidade")}
+          label="Quantidade"
+          error={!!errors.quantidade}
+          helperText={errors.quantidade?.message}
+          fullWidth
         />
 
         <Button type="submit" variant="contained">
