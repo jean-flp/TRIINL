@@ -1,34 +1,20 @@
+import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { ethers } from "ethers";
 import {contractABI} from "../abi/contractABI";
 import {contractAddress} from "../abi/contractAddress";
 
-export async function connectContract() {
-  if (!window.ethereum) {
-    alert("MetaMask não encontrada");
-    return null;
-  }
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  const signer = provider.getSigner();
-  return new ethers.Contract(contractAddress, contractABI, signer);
-}
-
-
 //VIEW FUNCTIONS
 
+export const LIBRARY_ROLE = keccak256(toUtf8Bytes("LIBRARY_ROLE"));
+export const USER_ROLE = keccak256(toUtf8Bytes("USER_ROLE"));
+export const ADMIN_ROLE = ethers.constants.HashZero;
 
-export async function getRoles() {
-  const contract = await connectContract();
-  if(!contract){
-        console.log("SEM CONTRATO:",contract);
-        return;
-    }
-
-  const adminRole = await contract.DEFAULT_ADMIN_ROLE();
-  const libraryRole = await contract.LIBRARY_ROLE();
-  const userRole = await contract.USER_ROLE();
-
-  return { adminRole, libraryRole, userRole };
+export function getRoles() {
+  return {
+    admin: ADMIN_ROLE,
+    library: LIBRARY_ROLE,
+    user: USER_ROLE
+  };
 }
 
 export async function balanceOf(contract, account, id) {
@@ -128,6 +114,8 @@ export async function getRoleAdmin(contract, role) {
 
 export async function hasRole(contract, role, account) {
   try {
+     console.log("🔍 hasRole - role:", role);
+    console.log("🔍 hasRole - account:", account);
     const result = await contract.hasRole(role, account);
     return result; // true ou false
   } catch (error) {

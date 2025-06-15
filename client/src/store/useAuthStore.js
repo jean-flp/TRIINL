@@ -12,8 +12,8 @@ export const useAuthStore = create(
       setUser: (userData) => set({ user: userData }),
       setRole: async (contract, address) => {
         try {
-          const { admin, library, user } = await getRoles();
-
+          const { admin, library, user } = getRoles();
+          console.log("🧩 Roles carregadas:", { admin, library, user });
           if (await hasRole(contract, admin, address)) {
             set({ role: "admin" });
             return;

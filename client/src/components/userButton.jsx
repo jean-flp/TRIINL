@@ -8,24 +8,49 @@ import WalletIcon from '@mui/icons-material/Wallet';
 import Stack from '@mui/material/Stack';
 
 import { userStore } from "../store/userLogin";
+import {useAuthStore} from "../store/useAuthStore";
 
 export default function authButton(){
-    const enderecoConta = userStore((state) => state.currentAccount);
-    const contrato = userStore((state) => state.contract);
-    const isConnected = userStore((state) => state.isConnected);
-    const connectWallet = userStore((state) => state.connectWallet);
-    const disconnectWallet = userStore((state) => state.disconnectWallet);
+   const { currentAccount, isConnected, connectWallet, disconnectWallet } = userStore();
+  const { role, setRole } = useAuthStore();
 
-    const [error, setError] = React.useState(null);
+  const [session, setSession] = React.useState(null);
+  const [error, setError] = React.useState(null);
 
   const handleConnect = async () => {
     try {
       await connectWallet(); // aguarda a conexão de fato
+      const updatedAccount = userStore.getState().currentAccount;
+      const updatedContract = userStore.getState().contract;
+      console.log(updatedContract.interface.fragments.map(f => f.name)); // veja se tem a função que está tentando usar
+
+      await setRole(updatedContract, updatedAccount);
+      const role = useAuthStore.getState().role;
+      console.log("ACCOUNT",updatedAccount)
+      console.log("CONTRACT",updatedContract)
+      console.log("ROLE",role)
     } catch (err) {
       console.error('Erro ao conectar carteira:', err);
       setError('Conexão cancelada ou falhou.');
     }
   };
+  const authentication = React.useMemo(() => {
+    return {
+      signIn: () => {
+        setSession(
+          {
+            user:{
+              name:currentAccount,
+              email:role,
+            }
+          }
+        );
+      },
+      signOut: () => {
+        setSession(null);
+      },
+    };
+  }, []);
 
 
     return (
@@ -33,6 +58,7 @@ export default function authButton(){
      {isConnected ? (
         <Button variant="outlined" color="error" onClick={disconnectWallet}>
           Desconectar
+          <Account/>
         </Button>
       ) : (
         <Button onClick={handleConnect} variant="contained" endIcon={<WalletIcon />}>
