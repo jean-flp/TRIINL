@@ -24,6 +24,7 @@ import Catalogo from "./pages/Catalogo";
 import Emprestimos from "./pages/Emprestimos";
 import landingPage from "./pages/landingPage";
 import BookForm from "./pages/CadastroLivro";
+import Admin from "./pages/admin";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
           {
             path: "/cadastroLivro",
             Component: BookForm,
+          },
+          {
+            path: "/admin",
+            Component: Admin ,
           },
         ],
       },

@@ -6,5 +6,6 @@ console.log("Contract Address:", contractAddress);
 
 export async function getContract(signer) {
   const contract = new ethers.Contract(contractAddress, contractABI, signer);
+  console.log("SOU O CONTRATO:",contract);
   return contract;
 }

@@ -9,10 +9,6 @@ import Stack from '@mui/material/Stack';
 
 import { userStore } from "../store/userLogin";
 
-const actionConnect = ()=>{
-    connectWallet();
-}
-
 export default function authButton(){
     const enderecoConta = userStore((state) => state.currentAccount);
     const contrato = userStore((state) => state.contract);

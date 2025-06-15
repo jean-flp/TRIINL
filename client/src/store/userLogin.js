@@ -1,8 +1,11 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
 import { getContract } from "../utils/web3";
+import {devtools} from "zustand/middleware"
 
- export const userStore = create((set) => ({
+ export const userStore = create(
+  devtools(
+  (set) => ({
   currentAccount: null,
   contract: null,
   isConnected: false,
@@ -31,4 +34,10 @@ import { getContract } from "../utils/web3";
       contract: null,
       isConnected: false,
     }),
-}));
+})
+  ,
+  {
+    name: "userStore",
+  }
+)
+);

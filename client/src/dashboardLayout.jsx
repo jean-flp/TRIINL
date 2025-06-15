@@ -37,6 +37,15 @@ const NAVIGATION = [
     title: "Cadastro de Livros",
     icon: <TimelineIcon />,
   },
+  {
+    kind: "header",
+    title: "Administrador",
+  },
+  {
+    segment: "admin",
+    title: "Administrador",
+    icon: <TimelineIcon />,
+  },
 ];
 const customTheme = createTheme({
   cssVariables: {
