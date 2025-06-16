@@ -36,8 +36,16 @@ const schema = yup.object().shape({
 const BookForm = () => {
   const { books, addBook } = bookStore();
   const [preview, setPreview] = useState(null);
-  const contract = userStore((state) => state.contract);
-  const currentAccount = userStore((state) => state.currentAccount);
+
+  const {
+    currentAccount,
+      contract,
+      isConnected,
+      token,
+      role,
+      signer,
+  } = userStore();
+
 
   const {
     register,
@@ -60,7 +68,7 @@ const BookForm = () => {
     };
 
     try {
-      addBook(contract, currentAccount, book);
+      await addBook(contract, signer, book);
       console.log("Deu certo o cadastro", book);
     } catch (err) {
       console.error("Erro ao salvar livro:", err);

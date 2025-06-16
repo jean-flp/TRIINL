@@ -1,4 +1,4 @@
-export const contractABI = [
+export const contractABI =[
     {
       "inputs": [
         {
@@ -1222,6 +1222,13 @@ export const contractABI = [
         }
       ],
       "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "selfRegisterAsUser",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

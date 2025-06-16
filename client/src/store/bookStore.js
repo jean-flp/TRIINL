@@ -5,7 +5,7 @@ import { devtools } from "zustand/middleware";
 
 export const bookStore = create(
   devtools(
-    (set) => ({
+    (set,get) => ({
       books: [],
       totalBooks: 0,
       fetchBooks: async (contract) => {
@@ -53,7 +53,7 @@ export const bookStore = create(
           set((state) => ({
             books: [...state.books, newBook],
           }));
-          get().fetchBooks();
+          get().fetchBooks(contract);
         } catch (err) {
           console.error("Erro ao criar um livro:", err);
         }

@@ -3,7 +3,6 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
-
 import {
   Accordion,
   AccordionSummary,
@@ -21,6 +20,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
+import { userStore } from "../store/userLogin";
 
 const schemaRegistro = yup.object().shape({
   walletLib: yup.string().required("Endereço Instituição Obrigatório é obrigatório"),
@@ -97,6 +97,8 @@ function Admin() {
   const [showSuccessAlertRole, setShowSuccessAlertRole] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const {contract,signer,role,currentAccount,setOtherRole,registerLibrary } = userStore() ;
+
   const {
     register: registerRegistro,
     handleSubmit: handleSubmitRegistro,
@@ -113,8 +115,10 @@ function Admin() {
     resolver: yupResolver(schemaRole),
   });
 
-  const onSubmitRegistro = (data) => {
+  const onSubmitRegistro = async (data) => {
     console.log("📘 Dados do registro da biblioteca:", data);
+    await registerLibrary(contract,data.walletLib,data.nameLib,data.siglaLib);
+
     setOpen(true);
     setShowSuccessAlertRegistro(true);
 
@@ -122,8 +126,10 @@ function Admin() {
     setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
   };
 
-  const onSubmitRole = (data) => {
+  const onSubmitRole = async (data) => {
     console.log("👤 Dados da atribuição de perfil:", data);
+    await setOtherRole(contract, data.accountRole,data.walletUser);
+
     setOpen(true);
     setShowSuccessAlertRole(true);
 
@@ -201,9 +207,26 @@ function Admin() {
             </form>
           </AccordionDetails>
         </Accordion>
+      </Box>
+      <br></br>
+      <Box>
+        <Typography variant="h4" gutterBottom>Opções Contrato</Typography>
         <Accordion>
           <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Registro de Perfil - Biblioteca</Typography>
+            <Typography component="span">Pausar Contrato</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box display={"flex"} spacing={1} sx={{alignItems:"center"}}  gap={2}>
+            <Typography sx={{marginLeft:"8px"}}>SIM</Typography>
+            <br/>
+            <FormControlLabel control={<PauseSwitch sx={{ml:1}} checked={isPaused} onChange={handlePauseToggle} />}/>
+            <Typography>NÃO</Typography>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Alteração de Perfil de Usuárrio</Typography>
           </AccordionSummary>
           <AccordionDetails>
             {showSuccessAlertRole && (
@@ -240,23 +263,6 @@ function Admin() {
                 </Button>
               </Stack>
             </form>
-          </AccordionDetails>
-        </Accordion>
-      </Box>
-      <br></br>
-      <Box>
-        <Typography variant="h4" gutterBottom>Opções Contrato</Typography>
-        <Accordion>
-          <AccordionSummary aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Pausar Contrato</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Box display={"flex"} spacing={1} sx={{alignItems:"center"}}  gap={2}>
-            <Typography sx={{marginLeft:"8px"}}>SIM</Typography>
-            <br/>
-            <FormControlLabel control={<PauseSwitch sx={{ml:1}} checked={isPaused} onChange={handlePauseToggle} />}/>
-            <Typography>NÃO</Typography>
-            </Box>
           </AccordionDetails>
         </Accordion>
       </Box>

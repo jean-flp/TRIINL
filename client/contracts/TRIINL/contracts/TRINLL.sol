@@ -68,6 +68,12 @@ contract TRIINL is
         _setRoleAdmin(USER_ROLE, DEFAULT_ADMIN_ROLE);
     }
 
+    function selfRegisterAsUser() external {
+    require(!hasRole(USER_ROLE, msg.sender), "Already has USER_ROLE");
+    _grantRole(USER_ROLE, msg.sender);
+    }
+
+
     function registerLibrary(
         address libraryAddress,
         string memory name,

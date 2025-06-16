@@ -16,6 +16,25 @@ export function getRoles() {
     user: USER_ROLE
   };
 }
+export async function selfRegisterAsUser(contract, signer) {
+  try {
+    // conecta o contrato ao signer (carteira que irá assinar a tx)
+    const contractWithSigner = contract.connect(signer);
+
+    // envia a transação para executar selfRegisterAsUser
+    const tx = await contractWithSigner.selfRegisterAsUser();
+
+    console.log('Transação enviada, hash:', tx.hash);
+
+    // espera a confirmação da transação
+    const receipt = await tx.wait();
+
+    console.log('Transação confirmada:', receipt.transactionHash);
+  } catch (error) {
+    console.error('Erro na selfRegisterAsUser:', error);
+  }
+}
+
 
 export async function balanceOf(contract, account, id) {
     try {
@@ -261,16 +280,30 @@ export async function burnTokens(contract, account, id, value, signer) {
   }
 }
 
-export async function grantRole(contract, role, account, signer) {
+// export async function grantRole(contract, role, account, signer) {
+//   try {
+//     const tx = await contract.connect(signer).grantRole(role, account);
+//     await tx.wait();  // Espera a confirmação da transação
+//     console.log(`Role concedido com sucesso à conta ${account}`);
+//   } catch (error) {
+//     console.error("Erro ao conceder role:", error);
+//     throw error;
+//   }
+// }
+
+// // Supondo que você já tenha o contrato conectado com um signer
+export async function grantRole(contract, role, account) {
   try {
-    const tx = await contract.connect(signer).grantRole(role, account);
-    await tx.wait();  // Espera a confirmação da transação
-    console.log(`Role concedido com sucesso à conta ${account}`);
+    const tx = await contract.grantRole(role, account);
+    console.log("Transação enviada:", tx.hash);
+
+    const receipt = await tx.wait();
+    console.log("Transação confirmada:", receipt.transactionHash);
   } catch (error) {
-    console.error("Erro ao conceder role:", error);
-    throw error;
+    console.error("Erro ao executar grantRole:", error);
   }
 }
+
 
 export async function mint(
   contract,
@@ -324,9 +357,9 @@ export async function pauseContract(contract, signer) {
   }
 }
 
-export async function registerLibrary(contract, signer, libraryAddress, name, sigla) {
+export async function registerLibrary(contract, libraryAddress, name, sigla) {
   try {
-    const tx = await contract.connect(signer).registerLibrary(libraryAddress, name, sigla);
+    const tx = await contract.registerLibrary(libraryAddress, name, sigla);
     await tx.wait(); // espera a confirmação da transação
     console.log("Biblioteca registrada com sucesso!");
   } catch (error) {

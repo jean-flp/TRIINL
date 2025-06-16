@@ -23,13 +23,21 @@ const MNEMONIC = process.env.MNEMONIC || "";
 
 //mnemonic
 const config: HardhatUserConfig = {
-  solidity: "0.8.27",
+  solidity: {
+    version: "0.8.27",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200 // valor baixo para otimizar o tamanho do bytecode
+      }
+    }
+  },
   networks: {
     Ganache: {
       url: process.env.PROVIDER_URL,
-      accounts:{
+      accounts: {
         mnemonic: MNEMONIC
-      } 
+      }
     }
   }
 };

@@ -2,140 +2,99 @@ import * as React from 'react';
 import Logout from '@mui/icons-material/Logout';
 import { Account } from '@toolpad/core/Account';
 import { AppProvider } from '@toolpad/core/AppProvider';
-
+import customTheme from './themes';
 import Button from '@mui/material/Button';
 import WalletIcon from '@mui/icons-material/Wallet';
 import Stack from '@mui/material/Stack';
 
 import { userStore } from "../store/userLogin";
-import {useAuthStore} from "../store/useAuthStore";
 
-export default function authButton(){
-   const { currentAccount, isConnected, connectWallet, disconnectWallet } = userStore();
-  const { role, setRole } = useAuthStore();
+export default function AuthButton() {
+  const {
+    currentAccount,
+    isConnected,
+    connectWallet,
+    disconnectWallet,
+    role,
+  } = userStore();
 
   const [session, setSession] = React.useState(null);
   const [error, setError] = React.useState(null);
 
   const handleConnect = async () => {
     try {
-      await connectWallet(); // aguarda a conexão de fato
+      await connectWallet();
       const updatedAccount = userStore.getState().currentAccount;
       const updatedContract = userStore.getState().contract;
-      console.log(updatedContract.interface.fragments.map(f => f.name)); // veja se tem a função que está tentando usar
+      const updatedRole = userStore.getState().role;
 
-      await setRole(updatedContract, updatedAccount);
-      const role = useAuthStore.getState().role;
-      console.log("ACCOUNT",updatedAccount)
-      console.log("CONTRACT",updatedContract)
-      console.log("ROLE",role)
+      const roleLabels = {
+        user: "Usuário",
+        admin: "Administrador",
+        library: "Biblioteca",
+      };
+      // Sessão criada com nome e role
+      setSession({
+        user: {
+          name: updatedAccount,
+          email: roleLabels[updatedRole],
+          image: 'https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg',
+        },
+      });
     } catch (err) {
-      console.error('Erro ao conectar carteira:', err);
-      setError('Conexão cancelada ou falhou.');
+      console.error("Erro ao conectar carteira:", err);
+      setError("Conexão cancelada ou falhou.");
     }
   };
-  const authentication = React.useMemo(() => {
-    return {
-      signIn: () => {
-        setSession(
-          {
-            user:{
-              name:currentAccount,
-              email:role,
-            }
-          }
-        );
-      },
+
+  // Fake auth (só para que AppProvider aceite session)
+  const authentication = React.useMemo(
+    () => ({
+      signIn: () => {},
       signOut: () => {
+        disconnectWallet();
         setSession(null);
       },
-    };
-  }, []);
+    }),
+    []
+  );
 
-
-    return (
+  return (
     <Stack direction="row" spacing={2}>
-     {isConnected ? (
-        <Button variant="outlined" color="error" onClick={disconnectWallet}>
-          Desconectar
-          <Account/>
-        </Button>
-      ) : (
-        <Button onClick={handleConnect} variant="contained" endIcon={<WalletIcon />}>
+      {!isConnected ? (
+        <Button
+          onClick={handleConnect}
+          variant="contained"
+          endIcon={<WalletIcon />}
+        >
           Conectar Wallet
         </Button>
+      ) : (
+        <AppProvider authentication={authentication} session={session} theme={customTheme}>
+          <Account
+            slotProps={{
+              signInButton: {
+                sx:{display:"none"},
+               },
+
+              // Oculta o botão de logout
+              signOutButton: {
+                color: 'error',
+                startIcon: <Logout />,
+              },
+              preview: {
+                variant: 'expanded',
+                slotProps: {
+                  avatarIconButton: {
+                    sx: { width: 'fit-content', margin: 'auto' },
+                  },
+                  avatar: { variant: 'rounded' },
+                },
+              },
+            }}
+          />
+        </AppProvider>
       )}
     </Stack>
   );
 }
-
-// export default function AccountCustomSlotProps() {
-   
-
-//     const [session, setSession] = React.useState(
-//         {
-//             user: {
-//                 endereco: enderecoConta,
-//                 image: 'https://avatars.githubusercontent.com/u/19550456',
-//             },
-//         }
-//     );
-
-//     const authentication = React.useMemo(() => {
-//         return {
-//             signIn: () => {
-//                 setSession({
-//                     user: {
-//                         name: enderecoConta,
-//                         image: 'https://avatars.githubusercontent.com/u/19550456',
-//                     },
-//                 });
-//             },
-//             signOut: () => {
-//                 setSession(null);
-//             },
-//         };
-//     }, []);
-
-//     return (
-//         <AppProvider authentication={authentication} session={session}>
-//             {/* preview-start */}
-//             <Account
-//                 slotProps={{
-//                     signInButton: {
-//                         color: 'success',
-//                     },
-//                     signOutButton: {
-//                         color: 'success',
-//                         startIcon: <Logout />,
-//                     },
-//                     preview: {
-//                         variant: 'expanded',
-//                         slotProps: {
-//                             avatarIconButton: {
-//                                 sx: {
-//                                     width: 'fit-content',
-//                                     margin: 'auto',
-//                                 },
-//                             },
-//                             avatar: {
-//                                 variant: 'rounded',
-//                             },
-//                         },
-//                     },
-//                 }}
-//             />
-//             {/* preview-end */}
-//         </AppProvider>
-//     );
-// }
-
-// export default function button(){
-//     return(
-//         <div>
-//             <button>
-//                 ALO
-//             </button>
-//         </div>
-//     );
-// }

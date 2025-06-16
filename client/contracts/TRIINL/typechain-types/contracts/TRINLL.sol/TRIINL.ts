@@ -87,6 +87,7 @@ export interface TRIINLInterface extends Interface {
       | "revokeRole"
       | "safeBatchTransferFrom"
       | "safeTransferFrom"
+      | "selfRegisterAsUser"
       | "setApprovalForAll"
       | "setURI"
       | "supportsInterface"
@@ -235,6 +236,10 @@ export interface TRIINLInterface extends Interface {
     values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "selfRegisterAsUser",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setApprovalForAll",
     values: [AddressLike, boolean]
   ): string;
@@ -326,6 +331,10 @@ export interface TRIINLInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "safeTransferFrom",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "selfRegisterAsUser",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -865,6 +874,8 @@ export interface TRIINL extends BaseContract {
     "nonpayable"
   >;
 
+  selfRegisterAsUser: TypedContractMethod<[], [void], "nonpayable">;
+
   setApprovalForAll: TypedContractMethod<
     [operator: AddressLike, approved: boolean],
     [void],
@@ -1130,6 +1141,9 @@ export interface TRIINL extends BaseContract {
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "selfRegisterAsUser"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "setApprovalForAll"
   ): TypedContractMethod<
