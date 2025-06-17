@@ -43,6 +43,7 @@ export const userStore = create(
            set({ role: "error" });
          }
         const role = get().role;
+        
         if( role === "error"|| role == null ){
           await selfRegisterAsUser(contrato,signer);
           set({role:"user"});
