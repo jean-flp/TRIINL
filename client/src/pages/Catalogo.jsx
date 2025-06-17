@@ -11,66 +11,38 @@ import {
   CircularProgress,
   InputLabel,
   FormControl,
+  Container,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Container from "@mui/material/Container";
-
-const mockLibraries = [
-  { id: 1, name: "Central Library" },
-  { id: 2, name: "Downtown Branch" },
-];
-
-const mockBooksByLibrary = {
-  1: [
-    {
-      id: 101,
-      title: "Clean Code",
-      author: "Robert C. Martin",
-      available: true,
-    },
-    {
-      id: 102,
-      title: "Refactoring",
-      author: "Martin Fowler",
-      available: false,
-    },
-  ],
-  2: [
-    {
-      id: 201,
-      title: "JavaScript: The Good Parts",
-      author: "Douglas Crockford",
-      available: true,
-    },
-    {
-      id: 202,
-      title: "Eloquent JavaScript",
-      author: "Marijn Haverbeke",
-      available: true,
-    },
-  ],
-};
+import { ethers } from "ethers";
+import { userStore } from "../store/userLogin";
+import { bookStore } from "../store/bookStore";
+import useSnackbar from "../components/Alert";
 
 function BrowseLibrary() {
+  const { books, fetchBooks } = bookStore();
   const [selectedLibrary, setSelectedLibrary] = useState("");
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [libraries, setLibraries] = useState([]);
+  const { showSnackbar, SnackbarComponent } = useSnackbar();
+  const contract = userStore((state) => state.contract);
+
+  useEffect(() => {
+    console.log("ALOU", contract);
+    if (contract == null) {
+      showSnackbar("Faça Login!", "error");
+    } else {
+      fetchBooks(contract);
+      console.log("Livros:", books);
+    }
+  }, []);
 
   const handleLibraryChange = (event) => {
-    const libraryId = event.target.value;
-    setSelectedLibrary(libraryId);
-    fetchBooksForLibrary(libraryId);
+    setSelectedLibrary(event.target.value);
   };
 
-  const fetchBooksForLibrary = (libraryId) => {
-    setLoading(true);
-
-    // Simulate async call with timeout
-    setTimeout(() => {
-      const books = mockBooksByLibrary[libraryId] || [];
-      setBooks(books);
-      setLoading(false);
-    }, 1000);
+  const handleLoanBook = (book) => {
+    console.log("Loan requested for book:", book);
   };
 
   return (
@@ -96,7 +68,7 @@ function BrowseLibrary() {
             onChange={handleLibraryChange}
             label="Select a Library"
           >
-            {mockLibraries.map((lib) => (
+            {libraries.map((lib) => (
               <MenuItem key={lib.id} value={lib.id}>
                 {lib.name}
               </MenuItem>
@@ -110,17 +82,13 @@ function BrowseLibrary() {
           </Box>
         ) : books.length > 0 ? (
           <Box sx={{ width: "100%", mt: 2 }}>
-            {books.map((book) => (
-              <Accordion key={book.id}>
+            {books.map((book, index) => (
+              <Accordion key={index}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography sx={{ width: "70%", flexShrink: 0 }}>
                     {book.title}
                   </Typography>
-                  <Typography
-                    sx={{
-                      color: book.available ? "green" : "red",
-                    }}
-                  >
+                  <Typography sx={{ color: book.available ? "green" : "red" }}>
                     {book.available ? "Available" : "Not available"}
                   </Typography>
                 </AccordionSummary>
@@ -151,6 +119,7 @@ function BrowseLibrary() {
           <Typography mt={2}>No books found for this library.</Typography>
         ) : null}
       </Box>
+      <SnackbarComponent />
     </Container>
   );
 }
