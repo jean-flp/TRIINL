@@ -1,4 +1,4 @@
-export const contractABI =[
+export const contractABI = [
     {
       "inputs": [
         {
@@ -216,6 +216,19 @@ export const contractABI =[
         }
       ],
       "name": "BookRestock",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "libraryAddress",
+          "type": "address"
+        }
+      ],
+      "name": "LibraryDeactivated",
       "type": "event"
     },
     {
@@ -691,6 +704,19 @@ export const contractABI =[
         }
       ],
       "name": "burnBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "libraryAddress",
+          "type": "address"
+        }
+      ],
+      "name": "deactivateLibrary",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

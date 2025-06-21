@@ -58,6 +58,7 @@ contract TRIINL is
     event BookCreated(uint256 bookId, string title, string uri);
     event BookRestock(uint256 bookId, address libraryFrom, uint256 amount);
     event LibraryRegistered(address libraryAddress, string sigla);
+    event LibraryDeactivated(address libraryAddress);
 
     constructor(address defaultAdmin)
         ERC1155("https://chocolate-bizarre-silverfish-712.mypinata.cloud/ipfs/")
@@ -147,11 +148,10 @@ contract TRIINL is
         string memory uriSuffix
     ) external onlyRole(LIBRARY_ROLE) {
         require(libraries[msg.sender].isActive, "Invalid library");
-        for (uint256 i = 0; i < nextBookId; i++) {
-            require(
-                strcmp(books[i].doi, doi) && books[i].instituicao == msg.sender,
-                "Book exists"
-            ); //validar
+        for(uint256 i = 0; i < nextBookId; i++){
+            if (strcmp(books[i].doi, doi) && books[i].instituicao == msg.sender) {
+                revert("Book with this DOI already exists for this institution");
+            }
         }
         require(
             bytes(title).length > 0 &&
@@ -292,5 +292,13 @@ contract TRIINL is
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    function deactivateLibrary(address libraryAddress) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    require(libraries[libraryAddress].isActive == true, "Library is already inactive or does not exist");
+    libraries[libraryAddress].isActive = false;
+    _revokeRole(LIBRARY_ROLE, libraryAddress);
+    _grantRole(USER_ROLE, libraryAddress);
+    emit LibraryDeactivated(libraryAddress);
     }
 }

@@ -489,3 +489,33 @@ export async function unpause(contract, signer) {
     console.error('Erro ao despausar o contrato:', error);
   }
 }
+
+export async function deactivateLibrary(contractInstance, libraryAddress) {
+  try {
+    console.log(`Deactivating library ${libraryAddress}...`);
+
+    //const tx = await contractInstance.connect(senderSigner).deactivateLibrary(libraryAddress);
+    const tx2 = await contractInstance.deactivateLibrary(libraryAddress);
+
+    //console.log("Transaction sent:", tx.hash);
+    console.log("Transaction sent tx2:", tx2.hash);
+
+    //const receipt = await tx.wait();
+
+    const receipt2 = await tx2.wait();
+
+    /*console.log("Transaction confirmed in block:", receipt.blockNumber);
+    console.log("Gas used:", receipt.gasUsed.toString());
+    console.log(`Library ${libraryAddress} successfully deactivated.`);*/
+
+    console.log("Transaction confirmed in block tx2:", receipt2.blockNumber);
+    console.log("Gas used tx2:", receipt2.gasUsed.toString());
+    console.log(`Library tx2 ${libraryAddress} successfully deactivated.`);
+
+
+    return  receipt2;
+  } catch (error) {
+    console.error("Error deactivating library:", error.message);
+    throw error;
+  }
+}
