@@ -644,11 +644,6 @@
         },
         {
           "internalType": "string",
-          "name": "doi",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
           "name": "ano",
           "type": "string"
         },
@@ -769,11 +764,6 @@
             {
               "internalType": "string",
               "name": "isbn",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "doi",
               "type": "string"
             },
             {
@@ -1002,11 +992,6 @@
         {
           "internalType": "string",
           "name": "isbn",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "doi",
           "type": "string"
         },
         {

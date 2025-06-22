@@ -640,11 +640,6 @@ export const contractABI = [
         },
         {
           "internalType": "string",
-          "name": "doi",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
           "name": "ano",
           "type": "string"
         },
@@ -765,11 +760,6 @@ export const contractABI = [
             {
               "internalType": "string",
               "name": "isbn",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "doi",
               "type": "string"
             },
             {
@@ -998,11 +988,6 @@ export const contractABI = [
         {
           "internalType": "string",
           "name": "isbn",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "doi",
           "type": "string"
         },
         {

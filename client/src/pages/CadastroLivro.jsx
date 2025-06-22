@@ -14,7 +14,6 @@ const schema = yup.object().shape({
   title: yup.string().required("Título é obrigatório"),
   author: yup.string().required("Autor é obrigatório"),
   isbn: yup.string().required("ISBN é obrigatório"),
-  doi: yup.string().required("DOI é obrigatório"),
   ano: yup.string().required("Ano é obrigatório"),
   capa: yup
     .mixed()
@@ -61,7 +60,6 @@ const BookForm = () => {
       title: data.title,
       author: data.author,
       isbn: data.isbn,
-      doi: data.doi,
       ano: data.ano,
       uriSuffix: (data.capa = "urlTeste"),
       amount: data.quantidade,
@@ -97,13 +95,6 @@ const BookForm = () => {
           label="ISBN"
           error={!!errors.isbn}
           helperText={errors.isbn?.message}
-          fullWidth
-        />
-        <TextField
-          {...register("doi")}
-          label="DOI"
-          error={!!errors.doi}
-          helperText={errors.doi?.message}
           fullWidth
         />
         <TextField

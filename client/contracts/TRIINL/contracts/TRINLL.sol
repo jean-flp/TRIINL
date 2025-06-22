@@ -21,7 +21,6 @@ contract TRIINL is
         string title;
         string author;
         string isbn;
-        string doi;
         string ano;
         string uri;
         address instituicao;
@@ -143,21 +142,19 @@ contract TRIINL is
         string memory title,
         string memory author,
         string memory isbn,
-        string memory doi,
         string memory ano,
         string memory uriSuffix
     ) external onlyRole(LIBRARY_ROLE) {
         require(libraries[msg.sender].isActive, "Invalid library");
         for(uint256 i = 0; i < nextBookId; i++){
-            if (strcmp(books[i].doi, doi) && books[i].instituicao == msg.sender) {
-                revert("Book with this DOI already exists for this institution");
+            if (strcmp(books[i].isbn, isbn) && books[i].instituicao == msg.sender) {
+                revert("Book with this ISBN already exists for this institution");
             }
         }
         require(
             bytes(title).length > 0 &&
                 bytes(author).length > 0 &&
                 bytes(isbn).length > 0 &&
-                bytes(doi).length > 0 &&
                 bytes(ano).length > 0 &&
                 bytes(uriSuffix).length > 0,
             "Invalid book data"
@@ -172,7 +169,6 @@ contract TRIINL is
             title,
             author,
             isbn,
-            doi,
             ano,
             fullURI,
             msg.sender
@@ -216,7 +212,10 @@ contract TRIINL is
         return loanId;
     }
 
-    function approveLoan(uint256 loanId) external onlyRole(LIBRARY_ROLE) {
+        function approveLoan(uint256 loanId) external onlyRole(LIBRARY_ROLE) {
+        require(libraries[msg.sender].isActive, "Library is not active");
+
+
         LoanRequest storage loan = loanRequests[loanId];
         require(
             loan.libraryFrom == msg.sender && loan.status == 0,
@@ -298,7 +297,6 @@ contract TRIINL is
     require(libraries[libraryAddress].isActive == true, "Library is already inactive or does not exist");
     libraries[libraryAddress].isActive = false;
     _revokeRole(LIBRARY_ROLE, libraryAddress);
-    _grantRole(USER_ROLE, libraryAddress);
     emit LibraryDeactivated(libraryAddress);
     }
 }

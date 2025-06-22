@@ -71,7 +71,6 @@ export async function getBook(contract, bookId) {
       title: book.title,
       author: book.author,
       isbn: book.isbn,
-      doi: book.doi,
       ano: book.ano,
       uri: book.uri,
       instituicao: book.instituicao
@@ -100,7 +99,6 @@ export async function getBookRETIRAR(contract, bookId) {
       title: book.title,
       author: book.author,
       isbn: book.isbn,
-      doi: book.doi,
       ano: book.ano,
       uri: book.uri,
       instituicao: book.instituicao,
@@ -312,7 +310,6 @@ export async function mint(
   title,
   author,
   isbn,
-  doi,
   ano,
   uriSuffix
 ) {
@@ -322,7 +319,6 @@ export async function mint(
       title,
       author,
       isbn,
-      doi,
       ano,
       uriSuffix
     );

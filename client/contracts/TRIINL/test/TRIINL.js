@@ -132,7 +132,6 @@ describe("Book Minting", function () {
     title: "The Great Novel",
     author: "Jane Doe",
     isbn: "978-0321765723",
-    doi: "10.1000/xyz123",
     ano: "2023",
     uriSuffix: "greatnovel.json"
   };
@@ -143,7 +142,6 @@ describe("Book Minting", function () {
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     ))
@@ -158,7 +156,6 @@ describe("Book Minting", function () {
     const book = await triinl.books(0);
     expect(book.title).to.equal(bookData.title);
     expect(book.author).to.equal(bookData.author);
-    expect(book.doi).to.equal(bookData.doi);
     expect(book.instituicao).to.equal(library1.address);
   });
 
@@ -168,7 +165,6 @@ describe("Book Minting", function () {
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     );
@@ -181,7 +177,6 @@ describe("Book Minting", function () {
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     ))
@@ -196,20 +191,18 @@ describe("Book Minting", function () {
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     ))
       .to.be.revertedWithCustomError(triinl, "AccessControlUnauthorizedAccount");
   });
 
-  it("Should revert if trying to mint a book with existing DOI for the same institution", async function () {
+  it("Should revert if trying to mint a book with existing ISBN for the same institution", async function () {
     await triinl.connect(library1).mint(
       bookData.amount,
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     );
@@ -218,21 +211,19 @@ describe("Book Minting", function () {
       1,
       "Another Title",
       "Another Author",
-      "123-456",
-      bookData.doi,
+      bookData.isbn,
       "2024",
       "another.json"
     ))
-      .to.be.revertedWith("Book with this DOI already exists for this institution");
+      .to.be.revertedWith("Book with this ISBN already exists for this institution");
   });
 
-  it("Should allow minting a book with the same DOI for a different institution", async function () {
+  it("Should allow minting a book with the same ISBN for a different institution", async function () {
     await triinl.connect(library1).mint(
       bookData.amount,
       bookData.title,
       bookData.author,
       bookData.isbn,
-      bookData.doi,
       bookData.ano,
       bookData.uriSuffix
     );
@@ -241,8 +232,7 @@ describe("Book Minting", function () {
       bookData.amount,
       "Another Title by Lib2",
       "Another Author by Lib2",
-      "123-456-L2",
-      bookData.doi,
+      bookData.isbn,
       "2024",
       "another-lib2.json"
     ))
@@ -253,27 +243,23 @@ describe("Book Minting", function () {
 
   it("Should revert if book data is invalid (empty strings)", async function () {
     await expect(triinl.connect(library1).mint(
-      bookData.amount, "", bookData.author, bookData.isbn, bookData.doi, bookData.ano, bookData.uriSuffix
+      bookData.amount, "", bookData.author, bookData.isbn, bookData.ano, bookData.uriSuffix
     )).to.be.revertedWith("Invalid book data");
 
     await expect(triinl.connect(library1).mint(
-      bookData.amount, bookData.title, "", bookData.isbn, bookData.doi, bookData.ano, bookData.uriSuffix
+      bookData.amount, bookData.title, "", bookData.isbn, bookData.ano, bookData.uriSuffix
     )).to.be.revertedWith("Invalid book data");
 
     await expect(triinl.connect(library1).mint(
-      bookData.amount, bookData.title, bookData.author, "", bookData.doi, bookData.ano, bookData.uriSuffix
+      bookData.amount, bookData.title, bookData.author, "", bookData.ano, bookData.uriSuffix
     )).to.be.revertedWith("Invalid book data");
 
     await expect(triinl.connect(library1).mint(
-      bookData.amount, bookData.title, bookData.author, bookData.isbn, "", bookData.ano, bookData.uriSuffix
+      bookData.amount, bookData.title, bookData.author, bookData.isbn, "", bookData.uriSuffix
     )).to.be.revertedWith("Invalid book data");
 
     await expect(triinl.connect(library1).mint(
-      bookData.amount, bookData.title, bookData.author, bookData.isbn, bookData.doi, "", bookData.uriSuffix
-    )).to.be.revertedWith("Invalid book data");
-
-    await expect(triinl.connect(library1).mint(
-      bookData.amount, bookData.title, bookData.author, bookData.isbn, bookData.doi, bookData.ano, ""
+      bookData.amount, bookData.title, bookData.author, bookData.isbn, bookData.ano, ""
     )).to.be.revertedWith("Invalid book data");
   });
 });
@@ -290,7 +276,6 @@ describe("Book Minting", function () {
         title: "Test Book",
         author: "Author A",
         isbn: "111",
-        doi: "DOI-TEST-1",
         ano: "2020",
         uriSuffix: "test.json"
       };
@@ -299,7 +284,6 @@ describe("Book Minting", function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
@@ -333,7 +317,6 @@ describe("Book Minting", function () {
       title: "The Great Novel",
       author: "Jane Doe",
       isbn: "978-0321765723",
-      doi: "10.1000/xyz123",
       ano: "2023",
       uriSuffix: "greatnovel.json"
     };
@@ -344,7 +327,6 @@ describe("Book Minting", function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
@@ -356,7 +338,6 @@ describe("Book Minting", function () {
       expect(book.title).to.equal(bookData.title);
       expect(book.author).to.equal(bookData.author);
       expect(book.isbn).to.equal(bookData.isbn);
-      expect(book.doi).to.equal(bookData.doi);
       expect(book.ano).to.equal(bookData.ano);
       expect(book.uri).to.equal(`https://chocolate-bizarre-silverfish-712.mypinata.cloud/ipfs/${bookData.uriSuffix}`);
       expect(book.instituicao).to.equal(library1.address);
@@ -379,7 +360,6 @@ describe("Book Minting", function () {
         title: "Sample Book",
         author: "Author B",
         isbn: "222",
-        doi: "DOI-SAMPLE-2",
         ano: "2021",
         uriSuffix: "sample.json"
       };
@@ -388,7 +368,6 @@ describe("Book Minting", function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
@@ -441,7 +420,6 @@ describe("Book Minting", function () {
         title: "Loanable Book",
         author: "Author C",
         isbn: "333",
-        doi: "DOI-LOAN-3",
         ano: "2022",
         uriSuffix: "loanable.json"
       };
@@ -450,7 +428,6 @@ describe("Book Minting", function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
@@ -512,7 +489,6 @@ describe("Book Minting", function () {
         title: "Returnable Book",
         author: "Author D",
         isbn: "444",
-        doi: "DOI-RETURN-4",
         ano: "2023",
         uriSuffix: "returnable.json"
       };
@@ -521,7 +497,6 @@ describe("Book Minting", function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
@@ -555,10 +530,10 @@ describe("Book Minting", function () {
     it("Should revert if trying to return a pending loan", async function () {
       const bookData2 = {
         amount: 5,
-        title: "Pending Book", author: "A", isbn: "555", doi: "DOI-PENDING-5", ano: "2024", uriSuffix: "pending.json"
+        title: "Pending Book", author: "A", isbn: "555", ano: "2024", uriSuffix: "pending.json"
       };
       await triinl.connect(library1).mint(
-        bookData2.amount, bookData2.title, bookData2.author, bookData2.isbn, bookData2.doi, bookData2.ano, bookData2.uriSuffix
+        bookData2.amount, bookData2.title, bookData2.author, bookData2.isbn, bookData2.ano, bookData2.uriSuffix
       );
       const pendingLoanId = await triinl.connect(user1).requestLoan.staticCall(library1.address, 1, 1);
       await triinl.connect(user1).requestLoan(library1.address, 1, 1);
@@ -586,7 +561,6 @@ describe("Transfer Between Libraries", function () {
       title: "Transferable Book Lib1",
       author: "Author E",
       isbn: "666",
-      doi: "DOI-TRANSFER-6",
       ano: "2024",
       uriSuffix: "transfer_lib1.json"
     };
@@ -595,7 +569,6 @@ describe("Transfer Between Libraries", function () {
       bookDataLib1.title,
       bookDataLib1.author,
       bookDataLib1.isbn,
-      bookDataLib1.doi,
       bookDataLib1.ano,
       bookDataLib1.uriSuffix
     );
@@ -606,7 +579,6 @@ describe("Transfer Between Libraries", function () {
       title: "Another Book Lib2",
       author: "Author F",
       isbn: "777",
-      doi: "DOI-ANOTHER-7",
       ano: "2024",
       uriSuffix: "another_lib2.json"
     };
@@ -615,7 +587,6 @@ describe("Transfer Between Libraries", function () {
       bookDataLib2.title,
       bookDataLib2.author,
       bookDataLib2.isbn,
-      bookDataLib2.doi,
       bookDataLib2.ano,
       bookDataLib2.uriSuffix
     );
@@ -677,7 +648,6 @@ it("Should revert if sender is not the 'from' account", async function () {
         title: "Update Test Book",
         author: "Author U",
         isbn: "888",
-        doi: "DOI-UPDATE-8",
         ano: "2025",
         uriSuffix: "update.json"
       };
@@ -686,7 +656,6 @@ it("Should revert if sender is not the 'from' account", async function () {
         bookData.title,
         bookData.author,
         bookData.isbn,
-        bookData.doi,
         bookData.ano,
         bookData.uriSuffix
       );
