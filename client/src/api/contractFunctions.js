@@ -66,12 +66,15 @@ export async function getBook(contract, bookId) {
   try {
     const book = await contract.books(bookId);
     // O retorno é um objeto com várias propriedades
+    const bookBalanceBigInt = await contract.balanceOf(book.instituicao, bookId);
+    const bookBalance = Number(bookBalanceBigInt);
     return {
       title: book.title,
       author: book.author,
       isbn: book.isbn,
       ano: book.ano,
       uri: book.uri,
+      amount: bookBalance,
       instituicao: book.instituicao
     };
   } catch (error) {
