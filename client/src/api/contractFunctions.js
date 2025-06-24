@@ -65,7 +65,6 @@ export async function getBalanceOfBatch(contract, accounts, ids) {
 export async function getBook(contract, bookId) {
   try {
     const book = await contract.books(bookId);
-
     // O retorno é um objeto com várias propriedades
     return {
       title: book.title,
@@ -188,6 +187,16 @@ export async function getNextBookId(contract) {
     const nextId = await contract.nextBookId();
     return nextId 
   } catch (error) {
+    console.error("Erro ao obter o próximo Book ID:", error);
+    throw error;
+  }
+}
+
+export async function getAllLibraryAdresses(contract){
+  try{
+    const allLib = await contract.getAllRegisteredLibraryAddresses();
+    return allLib;
+  }catch(error){
     console.error("Erro ao obter o próximo Book ID:", error);
     throw error;
   }

@@ -46,7 +46,6 @@ export const bookStore = create(
             book.title,
             book.author,
             book.isbn,
-            book.doi,
             book.ano,
             book.uriSuffix
           );

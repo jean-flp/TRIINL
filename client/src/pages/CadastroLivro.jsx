@@ -67,7 +67,7 @@ const BookForm = () => {
 
     try {
       await addBook(contract, signer, book);
-      console.log("Deu certo o cadastro", book);
+      console.log("Cadastro", book);
     } catch (err) {
       console.error("Erro ao salvar livro:", err);
     }

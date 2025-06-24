@@ -42,6 +42,7 @@ contract TRIINL is
 
     mapping(uint256 => Book) public books;
     mapping(address => Library) public libraries;
+    address[] public registeredLibraryAddresses;
     mapping(uint256 => LoanRequest) public loanRequests;
     uint256 public nextLoanId;
     uint256 public nextBookId;
@@ -79,11 +80,23 @@ contract TRIINL is
         string memory name,
         string memory sigla
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(libraries[libraryAddress].isActive == false, "Library exists");
+        require(libraries[libraryAddress].isActive == false, "Library already exists and is active");
         require(
             bytes(name).length > 0 && bytes(sigla).length > 0,
             "Invalid input"
         );
+
+        bool found = false;
+        for(uint i = 0; i < registeredLibraryAddresses.length; i++) {
+            if (registeredLibraryAddresses[i] == libraryAddress) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            registeredLibraryAddresses.push(libraryAddress);
+        }
+        
         libraries[libraryAddress] = Library(name, sigla, true);
         _grantRole(LIBRARY_ROLE, libraryAddress);
         emit LibraryRegistered(libraryAddress, sigla);
@@ -298,5 +311,9 @@ contract TRIINL is
     libraries[libraryAddress].isActive = false;
     _revokeRole(LIBRARY_ROLE, libraryAddress);
     emit LibraryDeactivated(libraryAddress);
+    }
+
+    function getAllRegisteredLibraryAddresses() public view returns (address[] memory) {
+        return registeredLibraryAddresses;
     }
 }

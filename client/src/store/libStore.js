@@ -1,0 +1,38 @@
+import { create } from "zustand";
+import { ethers } from "ethers";
+import { getAllLibraryAdresses } from "../api/contractFunctions";
+import { devtools } from "zustand/middleware";
+
+export const libStore = create(
+  devtools(
+    (set,get) => ({
+      libs: [],
+      totalLibs: 0,
+      fetchLibs: async (contract) => {
+        try {
+          const libraries_array = [];
+          const allLibAdresses = await getAllLibraryAdresses(contract);
+          let temp;
+          for (const addr of allLibAdresses) {
+            try {
+              const [name, sigla, isActive] = await contract.libraries(addr);
+              if (name && name.length > 0) {
+                libraries_array.push({ address: addr, name, sigla, isActive });
+              }
+            } catch (libError) {
+              console.warn(`Could not fetch details for library ${addr} via mapping getter:`, libError.message);
+            }
+          }
+          set({
+            libs: libraries_array,
+          });
+        } catch (err) {
+          console.error("Erro ao buscar bibliotecas:", err);
+        }
+      },
+    }),
+    {
+      name: "libStore",
+    }
+  )
+);

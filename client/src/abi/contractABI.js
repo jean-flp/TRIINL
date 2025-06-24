@@ -1,4 +1,4 @@
-export const contractABI = [
+export const contractABI =  [
     {
       "inputs": [
         {
@@ -736,6 +736,19 @@ export const contractABI = [
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getAllRegisteredLibraryAddresses",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -1091,6 +1104,25 @@ export const contractABI = [
       "name": "registerLibrary",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "registeredLibraryAddresses",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {

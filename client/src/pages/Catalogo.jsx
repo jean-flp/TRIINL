@@ -18,9 +18,11 @@ import { ethers } from "ethers";
 import { userStore } from "../store/userLogin";
 import { bookStore } from "../store/bookStore";
 import useSnackbar from "../components/Alert";
+import { libStore } from "../store/libStore";
 
 function BrowseLibrary() {
   const { books, fetchBooks } = bookStore();
+  const { libs, fetchLibs } = libStore();
   const [selectedLibrary, setSelectedLibrary] = useState("");
   const [loading, setLoading] = useState(true);
   const [libraries, setLibraries] = useState([]);
@@ -33,12 +35,15 @@ function BrowseLibrary() {
       showSnackbar("Faça Login!", "error");
     } else {
       fetchBooks(contract);
+      fetchLibs(contract);
       console.log("Livros:", books);
+      console.log("Bibliotecas: ", libs)
     }
   }, []);
 
   const handleLibraryChange = (event) => {
     setSelectedLibrary(event.target.value);
+    setLoading(false);
   };
 
   const handleLoanBook = (book) => {
@@ -68,7 +73,7 @@ function BrowseLibrary() {
             onChange={handleLibraryChange}
             label="Select a Library"
           >
-            {libraries.map((lib) => (
+            {libs.map((lib) => (
               <MenuItem key={lib.id} value={lib.id}>
                 {lib.name}
               </MenuItem>
@@ -88,7 +93,7 @@ function BrowseLibrary() {
                   <Typography sx={{ width: "70%", flexShrink: 0 }}>
                     {book.title}
                   </Typography>
-                  <Typography sx={{ color: book.available ? "green" : "red" }}>
+                  <Typography sx={{ color: book.amount > 0 ? "green" : "red" }}>
                     {book.available ? "Available" : "Not available"}
                   </Typography>
                 </AccordionSummary>

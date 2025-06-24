@@ -58,10 +58,10 @@ describe("TRIINL", function () {
 
   // --- Testes de Registro de Biblioteca ---
   describe("Library Registration", function () {
+    const newLibraryName = "New Public Library";
+    const newLibrarySigla = "NPL";
     it("Should allow DEFAULT_ADMIN_ROLE to register a new library", async function () {
       const newLibraryAddress = other.address;
-      const newLibraryName = "New Public Library";
-      const newLibrarySigla = "NPL";
 
       await expect(triinl.connect(deployer).registerLibrary(newLibraryAddress, newLibraryName, newLibrarySigla))
         .to.emit(triinl, "LibraryRegistered")
@@ -74,9 +74,12 @@ describe("TRIINL", function () {
       expect(await triinl.hasRole(LIBRARY_ROLE, newLibraryAddress)).to.be.true;
     });
 
-    it("Should revert if trying to register an existing library", async function () {
-      await expect(triinl.connect(deployer).registerLibrary(library1.address, "Lib One", "L1"))
-        .to.be.revertedWith("Library exists");
+    it("Should not add duplicate addresses to registeredLibraryAddresses if already present", async function () {
+      await expect(triinl.connect(deployer).registerLibrary(library1.address, newLibraryName, newLibrarySigla))
+        .to.be.revertedWith("Library already exists and is active");
+
+      registeredAddresses = await triinl.getAllRegisteredLibraryAddresses();
+      expect(registeredAddresses.length).to.equal(2); // Still 2, no começo do teste adiciona lib1 e lib2
     });
 
     it("Should revert if registering library with empty name or sigla", async function () {
