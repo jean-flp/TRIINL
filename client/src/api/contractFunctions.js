@@ -29,7 +29,9 @@ export async function selfRegisterAsUser(contract, signer) {
     // espera a confirmação da transação
     const receipt = await tx.wait();
 
+    console.log('Transação confirmada:', receipt);
     console.log('Transação confirmada:', receipt.transactionHash);
+    return receipt.confirmations
   } catch (error) {
     console.error('Erro na selfRegisterAsUser:', error);
   }

@@ -27,7 +27,7 @@ function sidebarFooter({ mini }) {
       variant="caption"
       sx={{ m: 1, whiteSpace: 'nowrap', overflow: 'hidden' }}
     >
-      {mini ? '© TRIINL' : `© ${new Date().getFullYear()} TRIINL`}
+      {mini ? <Typography variant="h8">TRIINL</Typography> : `© ${new Date().getFullYear()} TRIINL`}
     </Typography>
   );
 }

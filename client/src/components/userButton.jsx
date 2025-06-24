@@ -32,6 +32,7 @@ export default function AuthButton() {
         user: "Usuário",
         admin: "Administrador",
         library: "Biblioteca",
+        null:"Cadastre-se Realizando a Transação !!!"
       };
       // Sessão criada com nome e role
       setSession({
@@ -76,8 +77,6 @@ export default function AuthButton() {
               signInButton: {
                 sx:{display:"none"},
                },
-
-              // Oculta o botão de logout
               signOutButton: {
                 color: 'error',
                 startIcon: <Logout />,

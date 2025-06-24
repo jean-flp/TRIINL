@@ -15,11 +15,16 @@ export const userStore = create(
       signer:null,
 
       connectWallet: async () => {
+        const { isConnected } = get();
+        if (isConnected) {
+          console.log("Carteira já conectada, evitando reconexão.");
+          return;
+        }
+
         if (!window.ethereum) {
           alert("MetaMask não detectado.");
           return;
         }
-
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
@@ -42,11 +47,15 @@ export const userStore = create(
            console.error("Erro ao verificar role:", error);
            set({ role: "error" });
          }
-        const role = get().role;
+        const role = await get().role;
         
-        if( role === "error"|| role == null ){
-          await selfRegisterAsUser(contrato,signer);
-          set({role:"user"});
+        if(role === 'error' || role == null ){
+          const i = await selfRegisterAsUser(contrato,signer);
+          if(i === 1){
+            set({role:"user"})
+          }else{
+            set({role:null})
+          }
         }
 
         set({
@@ -54,6 +63,7 @@ export const userStore = create(
           contract: contrato,
           isConnected: true,
           signer:signer,
+          role:await get().role,
         });
       },
       disconnectWallet: () =>

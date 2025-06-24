@@ -1,21 +1,10 @@
-// //1.
-// import { StrictMode } from "react";
-// import { createRoot } from "react-dom/client";
-// import Login from "./pages/Login.jsx";
-// import Emprestimos from "./pages/Emprestimos.jsx";
-// import BrowseLibrary from "./pages/Catalogo.jsx";
-// import App from "./App.jsx";
-
-// createRoot(document.getElementById("root")).render(
-//   <StrictMode>
-//     <App />
-//   </StrictMode>
-// );
-
-//2.
-import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useMetaMaskListener from "../src/utils/metaMaskListener";
+
+import { userStore } from "../src/store/userLogin";
 
 import App from "./dashboardLayout";
 import Layout from "./components/layout";
@@ -26,46 +15,102 @@ import landingPage from "./pages/landingPage";
 import BookForm from "./pages/CadastroLivro";
 import Admin from "./pages/admin";
 
-const router = createBrowserRouter([
-  {
-    Component: App,
-    children: [
-      {
-        path: "/",
-        Component: Layout,
-        children: [
+function AppRouter() {
+  const { role } = userStore();
+  const [router, setRouter] = useState(null);
+  useMetaMaskListener();
+
+  useEffect(() => {
+    let routes;
+    switch (role) {
+      case "user":
+        routes = [
           {
-            index: true,
-            Component: landingPage,
+            Component: App,
+            children: [
+              {
+                path: "/",
+                Component: Layout,
+                children: [
+                  { index: true, Component: landingPage },
+                  { path: "/login", Component: Login },
+                  { path: "/catalogo", Component: Catalogo },
+                  { path: "/emprestimos", Component: Emprestimos },
+                ],
+              },
+            ],
           },
+        ];
+        break;
+
+      case "library":
+        routes = [
           {
-            path: "/login",
-            Component: Login,
+            Component: App,
+            children: [
+              {
+                path: "/",
+                Component: Layout,
+                children: [
+                  { index: true, Component: landingPage },
+                  { path: "/login", Component: Login },
+                  { path: "/catalogo", Component: Catalogo },
+                  { path: "/emprestimos", Component: Emprestimos },
+                  { path: "/cadastroLivro", Component: BookForm },
+                ],
+              },
+            ],
           },
+        ];
+        break;
+
+      case "admin":
+        routes = [
           {
-            path: "/catalogo",
-            Component: Catalogo,
+            Component: App,
+            children: [
+              {
+                path: "/",
+                Component: Layout,
+                children: [
+                  { index: true, Component: landingPage },
+                  { path: "/login", Component: Login },
+                  { path: "/catalogo", Component: Catalogo },
+                  { path: "/emprestimos", Component: Emprestimos },
+                  { path: "/cadastroLivro", Component: BookForm },
+                  { path: "/admin", Component: Admin },
+                ],
+              },
+            ],
           },
+        ];
+        break;
+
+      default:
+        routes = [
           {
-            path: "/emprestimos",
-            Component: Emprestimos,
+            Component: App,
+            children: [
+              {
+                path: "/",
+                Component: Layout,
+                children: [{ index: true, Component: landingPage }],
+              },
+            ],
           },
-          {
-            path: "/cadastroLivro",
-            Component: BookForm,
-          },
-          {
-            path: "/admin",
-            Component: Admin ,
-          },
-        ],
-      },
-    ],
-  },
-]);
+        ];
+    }
+
+    setRouter(createBrowserRouter(routes));
+  }, [role]);
+
+  if (!router) return <div>Carregando...</div>;
+
+  return <RouterProvider router={router} />;
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AppRouter />
   </StrictMode>
 );
