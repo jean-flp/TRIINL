@@ -10,6 +10,8 @@ import Box from "@mui/material/Box";
 import { bookStore } from "../store/bookStore";
 import { userStore } from "../store/userLogin";
 
+import { putBookCover } from "../utils/ipfsAPI";
+
 const schema = yup.object().shape({
   title: yup.string().required("Título é obrigatório"),
   author: yup.string().required("Autor é obrigatório"),
@@ -61,7 +63,7 @@ const BookForm = () => {
       author: data.author,
       isbn: data.isbn,
       ano: data.ano,
-      uriSuffix: (data.capa = "urlTeste"),
+      uriSuffix: await putBookCover(data.capa[0]),
       amount: data.quantidade,
     };
 

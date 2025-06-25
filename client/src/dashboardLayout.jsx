@@ -29,6 +29,10 @@ const NAVIGATION_USER = [
 ];
 
 const NAVIGATION_LIB = [
+  { kind: "header", title: "Área Usuário" },
+  { segment: "login", title: "Login", icon: <DashboardIcon /> },
+  { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
+  { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
   { kind: "header", title: "Área Biblioteca" },
   { segment: "cadastroLivro", title: "Cadastro de Livros", icon: <TimelineIcon /> },
 ];

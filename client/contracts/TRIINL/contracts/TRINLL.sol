@@ -61,7 +61,7 @@ contract TRIINL is
     event LibraryDeactivated(address libraryAddress);
 
     constructor(address defaultAdmin)
-        ERC1155("https://chocolate-bizarre-silverfish-712.mypinata.cloud/ipfs/")
+        ERC1155("http://localhost:3000/ipfs/")
     {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(LIBRARY_ROLE, defaultAdmin);
