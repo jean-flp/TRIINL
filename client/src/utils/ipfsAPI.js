@@ -41,12 +41,11 @@ export const httpDelete = async function (endpoint, customConfig = {}) {
 
 export async function putBookCover(bookcover) {
   try {
-    //Há atualmente problema em enndereçar duas fotos com o mesmo nome, pois o cid para de funcionar para a foto mais antiga
+    //Há atualmente problema em endereçar duas fotos com o mesmo nome, pois o cid para de funcionar para a foto mais antiga
     const formData = new FormData();
     formData.append('file', bookcover); // 'file' deve corresponder ao campo esperado pelo multer
-
     const response = await httpPost(
-      `${import.meta.env.VITE_URL_SERVER}/upload`,
+      "http://localhost:3000/upload",
       formData,
       {
         headers: {

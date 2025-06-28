@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useMetaMaskListener from "../src/utils/metaMaskListener";
 
@@ -15,9 +15,23 @@ import landingPage from "./pages/landingPage";
 import BookForm from "./pages/CadastroLivro";
 import Admin from "./pages/admin";
 
+function NavigationHandler() {
+  const { isConnected } = userStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isConnected) {
+      navigate("/");
+    }
+  }, [isConnected, navigate]);
+
+  return null; 
+}
+
 function AppRouter() {
   const { role } = userStore();
   const [router, setRouter] = useState(null);
+
   useMetaMaskListener();
 
   useEffect(() => {
@@ -36,6 +50,7 @@ function AppRouter() {
                   { path: "/login", Component: Login },
                   { path: "/catalogo", Component: Catalogo },
                   { path: "/emprestimos", Component: Emprestimos },
+                  { path: "*", element: <NavigationHandler /> },
                 ],
               },
             ],
@@ -57,6 +72,7 @@ function AppRouter() {
                   { path: "/catalogo", Component: Catalogo },
                   { path: "/emprestimos", Component: Emprestimos },
                   { path: "/cadastroLivro", Component: BookForm },
+                  { path: "*", element: <NavigationHandler /> },
                 ],
               },
             ],
@@ -79,6 +95,7 @@ function AppRouter() {
                   { path: "/emprestimos", Component: Emprestimos },
                   { path: "/cadastroLivro", Component: BookForm },
                   { path: "/admin", Component: Admin },
+                  { path: "*", element: <NavigationHandler /> },
                 ],
               },
             ],
@@ -94,7 +111,10 @@ function AppRouter() {
               {
                 path: "/",
                 Component: Layout,
-                children: [{ index: true, Component: landingPage }],
+                children: [
+                  { index: true, Component: landingPage },
+                  { path: "*", element: <NavigationHandler /> }
+                ],
               },
             ],
           },

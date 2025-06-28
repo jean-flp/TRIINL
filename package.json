@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "app":"concurrently \"cd client && npm run dev\" \"cd client/contracts && npm run ganache \" ",
+    "app":"concurrently \"cd client && npm run dev\" \"cd client/contracts && npm run ganache \" \"cd client/src/ipfs && node express.js\" ",
     "deploy-contract":"cd client/contracts && npm run deploy",
     "install-all":"concurrently \"cd client && npm i --force\" \"cd client/contracts && npm i --force\" ",
     "blockchainState":"cd client/contracts/TRIINL && npx hardhat run blockchainState.js --network Ganache"

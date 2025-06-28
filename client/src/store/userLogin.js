@@ -66,14 +66,16 @@ export const userStore = create(
           role:await get().role,
         });
       },
-      disconnectWallet: () =>
+      disconnectWallet: () => {
         set({
           currentAccount: null,
           contract: null,
           isConnected: false,
           token: null,
           role: null,
-        }),
+        })
+      }
+      ,
       setOtherRole: async (contract, role, account) => {
         const { admin, library, user } = getRoles();
         switch (role) {

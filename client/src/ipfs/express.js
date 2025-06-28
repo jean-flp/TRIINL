@@ -16,7 +16,7 @@ import mime from 'mime-types'; // Para determinar o Content-Type
 import cors from 'cors'
 
 //tentar usar nomeoriginal + account + data
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
+//import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 
 const app = express();
 const upload = multer();
