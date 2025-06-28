@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 
 async function client(endpoint, { body, ...customConfig } = {}) {
   const config = {
@@ -39,11 +40,22 @@ export const httpDelete = async function (endpoint, customConfig = {}) {
   return client(endpoint, { ...customConfig, method: "DELETE" });
 };
 
-export async function putBookCover(bookcover) {
+export async function putBookCover(bookcover, wallet) {
   try {
-    //Há atualmente problema em endereçar duas fotos com o mesmo nome, pois o cid para de funcionar para a foto mais antiga
+
+    const timestamp = Date.now();
+    const temp = `${wallet}_${timestamp}_${bookcover.name}`;
+    const uniqueName = keccak256(toUtf8Bytes(temp)).slice(2);
+
+    // Cria um novo objeto File com o nome alterado
+    const renamedFile = new File([bookcover], uniqueName, {
+      type: bookcover.type,
+      lastModified: bookcover.lastModified,
+    });
+
     const formData = new FormData();
-    formData.append('file', bookcover); // 'file' deve corresponder ao campo esperado pelo multer
+    formData.append('file', renamedFile); // 'file' deve corresponder ao campo esperado pelo multer
+
     const response = await httpPost(
       "http://localhost:3000/upload",
       formData,
@@ -53,8 +65,7 @@ export async function putBookCover(bookcover) {
         },
       }
     );
-    console.log("Resposta JSON:", response);
-    return response.cid;
+    return response.name;
   } catch (error) {
     console.error("Erro ao fazer upload da capa:", error);
     throw error;

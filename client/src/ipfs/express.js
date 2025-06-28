@@ -8,93 +8,124 @@ if (!Promise.withResolvers) {
     return { promise, resolve, reject };
   };
 }
+
 import express from 'express';
 import multer from 'multer';
-import mime from 'mime-types'; // Para determinar o Content-Type
-
-
-import cors from 'cors'
-
-//tentar usar nomeoriginal + account + data
-//import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
+import cors from 'cors';
 
 const app = express();
 const upload = multer();
 
 app.use(cors());
 app.use(express.json());
-let hashMap = new Map();
+const hashMap = new Map();
 
 async function createNode() {
   const { createHelia } = await import('helia');
   const { unixfs } = await import('@helia/unixfs');
 
-  const helia = await createHelia();
-  const fs = unixfs(helia);
-  return { helia, fs };
+  try {
+    const helia = await createHelia();
+    console.log('Nó Helia inicializado:', helia);
+    const fs = unixfs(helia);
+    return { helia, fs };
+  } catch (error) {
+    console.error('Erro ao inicializar o nó Helia:', error);
+    throw error;
+  }
 }
 
 async function run() {
+  hashMap.clear();//??????
   const { fs, helia } = await createNode();
 
   app.post('/upload', upload.single('file'), async (req, res) => {
-    const data = req.file.buffer;
-    const cid = await fs.addBytes(data);
-    console.log('CID:', cid.toString());
+    try {
+      if (!req.file) {
+        console.error('Nenhum arquivo enviado no campo "file"');
+        return res.status(400).json({ message: 'Nenhum arquivo enviado' });
+      }
 
-    hashMap.set(req.file.originalname, cid.toString()); // Armazena o CID como string
-    res.status(201).json({ message: 'Arquivo uploaded', cid: cid.toString() });
+      const data = req.file.buffer;
+      const cid = await fs.addBytes(data);
+      const cidStr = cid.toString();
+      const originalname = req.file.originalname;
+
+      // Armazena o CID e o Content-Type no hashMap
+      hashMap.set(originalname, {
+        cid: cidStr,
+        contentType: req.file.mimetype || 'application/octet-stream',
+      });
+
+      console.log('Arquivo enviado:', {
+        originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        cid: cidStr,
+      });
+      console.log('hashMap atualizado:', Array.from(hashMap.entries()));
+
+      res.status(201).json({ message: 'Arquivo uploaded', name: originalname, cid: cidStr});
+    } catch (error) {
+      console.error('Erro ao fazer upload:', error);
+      res.status(500).json({ message: 'Erro ao fazer upload do arquivo', error: error.message });
+    }
   });
-
+  //USO MAIS PARA ARQUIVO TEXTO
   app.get('/fetch', async (req, res) => {
     const filename = req.body.filename;
-    const cid = hashMap.get(filename);
-    if (!cid) {
-      res.status(404).send('Não achou o arquivo');
-      return;
+    const fileData = hashMap.get(filename);
+    if (!fileData) {
+      console.error('Arquivo não encontrado no hashMap:', filename);
+      return res.status(404).send('Não achou o arquivo');
     }
 
-    // Para arquivos de texto, mantém a decodificação como texto
-    let text = '';
-    const decoder = new TextDecoder();
     try {
-      for await (const chunk of fs.cat(cid)) {
+      let text = '';
+      const decoder = new TextDecoder();
+      for await (const chunk of fs.cat(fileData.cid)) {
         text += decoder.decode(chunk, { stream: true });
       }
       res.status(200).send(text);
     } catch (error) {
+      console.error('Erro ao recuperar arquivo:', error);
       res.status(500).send('Erro ao recuperar o arquivo');
     }
   });
-
-  // Novo endpoint para servir arquivos binários (como imagens) no navegador
-  app.get('/ipfs/:cid', async (req, res) => {
-    const cid = req.params.cid;
-    if (!cid) {
-      res.status(400).send('CID não fornecido');
-      return;
+  //USO PARA FETCH DE IMAGEM
+  app.get('/ipfs/:name', async (req, res) => {
+    const name = req.params.name;
+    if (!name) {
+      console.error('Nome do arquivo não fornecido');
+      return res.status(400).send('Nome do arquivo não fornecido');
     }
 
     try {
-      // Determina o Content-Type com base no nome do arquivo associado ao CID
-      let contentType = 'application/octet-stream'; // Padrão para binários genéricos
-      for (const [filename, storedCid] of hashMap) {
-        if (storedCid === cid) {
-          contentType = mime.lookup(filename) || contentType;
-          break;
-        }
+
+      const fileData = hashMap.get(name);
+      if (!fileData) {
+        console.error('Nome de arquivo não encontrado no hashMap:', name);
+        console.log('Conteúdo atual do hashMap:', Array.from(hashMap.entries()));
+        return res.status(404).send('Nome de arquivo não encontrado');
       }
 
-      res.set('Content-Type', contentType);
+      const { cid, contentType } = fileData;
+      
+      if (!cid) {
+        console.error('Nome de arquivo não encontrado no hashMap:', name);
+        return res.status(404).send('Nome de arquivo não encontrado');
+      }
 
-      // Envia os dados binários diretamente
+      console.log('Servindo arquivo:', { cid, contentType, name });
+
+      res.set('Content-Type', contentType);
       for await (const chunk of fs.cat(cid)) {
         res.write(chunk);
       }
       res.end();
     } catch (error) {
       console.error('Erro ao servir CID:', error);
-      res.status(500).send('Erro ao recuperar o arquivo');
+      res.status(500).send(`Erro ao recuperar o arquivo: ${error.message}`);
     }
   });
 
@@ -103,7 +134,6 @@ async function run() {
     console.log(`IPFS rodando na porta:${PORT}`);
   });
 
-  // Mantém o nó Helia ativo até o servidor ser encerrado
   process.on('SIGINT', async () => {
     console.log('Encerrando o nó Helia...');
     await helia.stop();

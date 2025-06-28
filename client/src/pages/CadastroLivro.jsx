@@ -63,7 +63,7 @@ const BookForm = () => {
       author: data.author,
       isbn: data.isbn,
       ano: data.ano,
-      uriSuffix: await putBookCover(data.capa[0]),
+      uriSuffix: await putBookCover(data.capa[0],currentAccount),
       amount: data.quantidade,
     };
 
