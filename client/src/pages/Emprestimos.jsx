@@ -8,55 +8,39 @@ import {
   Box,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-
-// 💡 MOCK DATA
-const mockLoans = [
-  {
-    id: 1,
-    book: {
-      title: "Clean Code",
-      author: "Robert C. Martin",
-    },
-    status: "Returned",
-    dueDate: "2025-06-10",
-    returnedDate: "2025-06-05",
-  },
-  {
-    id: 2,
-    book: {
-      title: "The Pragmatic Programmer",
-      author: "Andrew Hunt",
-    },
-    status: "Pending",
-    dueDate: "2025-06-20",
-    returnedDate: null,
-  },
-  {
-    id: 3,
-    book: {
-      title: "Design Patterns",
-      author: "Erich Gamma",
-    },
-    status: "Overdue",
-    dueDate: "2025-05-15",
-    returnedDate: null,
-  },
-];
+import { loanStore } from "../store/loanStore";
+import { userStore } from "../store/userLogin";
 
 function Emprestimos() {
-  const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { loans, fetchLoans } = loanStore();
+  const [userLoans, setUserLoans] = useState([]);
+  const contract = userStore((state) => state.contract);
+  const currentAccount = userStore((state) => state.currentAccount);
+  const role = userStore((state) => state.role);
 
   useEffect(() => {
-    const loadMockData = () => {
-      setTimeout(() => {
-        setLoans(mockLoans);
-        setLoading(false);
-      }, 1000);
+    const fetchData = async () => {
+      setLoading(true);
+      await fetchLoans(contract);
+      setLoading(false);
     };
-
-    loadMockData();
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    if (loans) {
+      if (role === "user") {
+        const filtered = loans.filter((loan) => {
+          return loan.user.toUpperCase() === currentAccount.toUpperCase();
+        });
+        setUserLoans(filtered);
+        console.log("Filtered Loans: ", userLoans);
+      } else {
+        setUserLoans(loans);
+      }
+    }
+  }, [loans]);
 
   if (loading) {
     return (
@@ -72,38 +56,43 @@ function Emprestimos() {
         My Loans
       </Typography>
 
-      {loans.length === 0 ? (
+      {userLoans.length === 0 ? (
         <Typography>Não foram encontrados empréstimos</Typography>
       ) : (
-        loans.map((loan) => (
+        userLoans.map((loan) => (
           <Accordion key={loan.id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography sx={{ width: "60%", flexShrink: 0 }}>
-                {loan.book.title}
-              </Typography>
+              <Typography sx={{ width: "60%", flexShrink: 0 }}>{}</Typography>
               <Typography
                 sx={{
                   color:
-                    loan.status === "Atrasado"
+                    loan.status === 0
                       ? "red"
-                      : loan.status === "Finalizado"
-                      ? "green"
-                      : "text.secondary",
+                      : loan.status === 2
+                        ? "green"
+                        : "text.secondary",
                 }}
               >
-                {loan.status}
+                {loan.status === 0 ? (
+                  <Typography>
+                    <strong>Em Análise</strong>
+                  </Typography>
+                ) : (
+                  <Typography>
+                    <strong>Devolvido</strong>
+                  </Typography>
+                )}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
               <Typography>
+                <strong>Título:</strong> {loan.book.title}
+              </Typography>
+              <Typography>
                 <strong>Autor:</strong> {loan.book.author}
               </Typography>
               <Typography>
-                <strong>Data de devolução:</strong> {loan.dueDate}
-              </Typography>
-              <Typography>
-                <strong>Devolvido:</strong>{" "}
-                {loan.returnedDate ?? "Ainda não foi devolvido"}
+                <strong>ISBN: </strong> {loan.book.isbn}
               </Typography>
             </AccordionDetails>
           </Accordion>

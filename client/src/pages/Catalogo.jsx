@@ -12,6 +12,10 @@ import {
   InputLabel,
   FormControl,
   Container,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ethers } from "ethers";
@@ -19,35 +23,62 @@ import { userStore } from "../store/userLogin";
 import { bookStore } from "../store/bookStore";
 import useSnackbar from "../components/Alert";
 import { libStore } from "../store/libStore";
+import { loanStore } from "../store/loanStore";
 
 function BrowseLibrary() {
   const { books, fetchBooks } = bookStore();
   const { libs, fetchLibs } = libStore();
+  const { requestLoan } = loanStore();
   const [selectedLibrary, setSelectedLibrary] = useState("");
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [libraries, setLibraries] = useState([]);
   const { showSnackbar, SnackbarComponent } = useSnackbar();
   const contract = userStore((state) => state.contract);
+  const signer = userStore((state) => state.signer);
 
   useEffect(() => {
-    console.log("ALOU", contract);
     if (contract == null) {
       showSnackbar("Faça Login!", "error");
     } else {
-      fetchBooks(contract);
-      fetchLibs(contract);
-      console.log("Livros:", books);
-      console.log("Bibliotecas: ", libs)
+      const fetchData = async () => {
+        setLoading(true);
+        await fetchBooks(contract);
+        await fetchLibs(contract);
+        setLoading(false);
+      };
+      fetchData();
     }
   }, []);
 
+  useEffect(() => {
+    if (selectedLibrary) {
+      const selectedLibObject = libs.find(
+        (lib) => lib.address === selectedLibrary
+      );
+
+      if (selectedLibObject) {
+        const filtered = books.filter((book) => {
+          return book.instituicao === selectedLibObject.address;
+        });
+        setFilteredBooks(filtered);
+        console.log("Filtered books:", filtered);
+      } else {
+        setFilteredBooks([]);
+      }
+    } else {
+      setFilteredBooks(books);
+    }
+  }, [books, selectedLibrary, libs]);
+
   const handleLibraryChange = (event) => {
     setSelectedLibrary(event.target.value);
-    setLoading(false);
+    console.log(selectedLibrary);
   };
 
   const handleLoanBook = (book) => {
     console.log("Loan requested for book:", book);
+    requestLoan(contract, signer, book);
   };
 
   return (
@@ -71,10 +102,10 @@ function BrowseLibrary() {
           <Select
             value={selectedLibrary}
             onChange={handleLibraryChange}
-            label="Select a Library"
+            label="Escolha uma biblioteca"
           >
             {libs.map((lib) => (
-              <MenuItem key={lib.id} value={lib.id}>
+              <MenuItem key={lib.address} value={lib.address}>
                 {lib.name}
               </MenuItem>
             ))}
@@ -85,43 +116,51 @@ function BrowseLibrary() {
           <Box display="flex" justifyContent="center" mt={4}>
             <CircularProgress />
           </Box>
-        ) : books.length > 0 ? (
-          <Box sx={{ width: "100%", mt: 2 }}>
+        ) : filteredBooks.length > 0 ? (
+          <Box sx={{ width: "100%", mt: 3 }}>
             {books.map((book, index) => (
-              <Accordion key={index}>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography sx={{ width: "70%", flexShrink: 0 }}>
+              <Card sx={{ maxWidth: 345 }}>
+                <CardMedia
+                  sx={{ height: 200 }}
+                  image={book.uriSuffix}
+                  title={book.title}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
                     {book.title}
                   </Typography>
-                  <Typography sx={{ color: book.amount > 0 ? "green" : "red" }}>
-                    {book.available ? "Available" : "Not available"}
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Autor: {book.author}
                   </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography>
-                    <strong>Author:</strong> {book.author}
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    ISBN: {book.isbn}
                   </Typography>
-
-                  {book.available ? (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      sx={{ mt: 2 }}
-                      onClick={() => handleLoanBook(book)}
-                    >
-                      Loan Book
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Ano: {book.ano}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    Quantidade disponível para empréstimo: {book.amount}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  {book.amount > 0 ? (
+                    <Button size="small" onClick={() => handleLoanBook(book)}>
+                      Solicitar empréstimo{" "}
                     </Button>
                   ) : (
-                    <Typography sx={{ mt: 2, color: "gray" }}>
-                      This book is not available for loan.
+                    <Typography>
+                      {" "}
+                      Não há exemplares disponíveis para empréstimo{" "}
                     </Typography>
                   )}
-                </AccordionDetails>
-              </Accordion>
+                </CardActions>
+              </Card>
             ))}
           </Box>
         ) : selectedLibrary ? (
-          <Typography mt={2}>No books found for this library.</Typography>
+          <Typography mt={2}>
+            Não há livros cadastrados para essa biblioteca.
+          </Typography>
         ) : null}
       </Box>
       <SnackbarComponent />

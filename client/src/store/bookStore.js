@@ -5,7 +5,7 @@ import { devtools } from "zustand/middleware";
 
 export const bookStore = create(
   devtools(
-    (set,get) => ({
+    (set, get) => ({
       books: [],
       totalBooks: 0,
       fetchBooks: async (contract) => {
@@ -15,6 +15,10 @@ export const bookStore = create(
           let temp;
           for (let index = 0; index < totalBook; index++) {
             temp = await getBook(contract, index);
+            temp = {
+              ...temp,
+              id: index,
+            };
             books_array.push(temp);
           }
           set({
@@ -27,12 +31,13 @@ export const bookStore = create(
       },
       fetchBookById: async (contract, id) => {
         try {
-          const book = await getBook(contract, id);
-          set((state) => {
-            const updatedBooks = [...state.books];
-            updatedBooks[id] = book;
-            return { books: updatedBooks };
-          });
+          let book = await getBook(contract, id);
+          book = {
+            ...book,
+            id: id,
+          };
+          console.log(book);
+          return book;
         } catch (err) {
           console.error("Erro ao buscar livro:", err);
         }
