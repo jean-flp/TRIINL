@@ -29,13 +29,11 @@ export const loanStore = create(
             };
             if (temp.bookId !== undefined && temp.bookId !== null) {
               const livro = await fetchBookById(contract, temp.bookId);
-              console.log("Livro do emprestimo: ", livro);
               const loanInteiro = {
                 ...temp,
                 book: { ...livro },
               };
               if (loanInteiro !== undefined && loanInteiro !== null) {
-                console.log(loanInteiro);
                 loans_array.push(loanInteiro);
               } else {
                 loans_array.push(temp);
@@ -77,6 +75,22 @@ export const loanStore = create(
           get().fetchLoans(contract, signer);
         } catch (err) {
           console.error("Erro ao criar um emprestimo:", err);
+        }
+      },
+      acceptLoan: async (contract, loanId, signer) => {
+        try {
+          await approveLoan(contract, loanId, signer);
+          get().fetchLoans(contract, signer);
+        } catch (err) {
+          console.error("Erro ao aprovar um emprestimo:", err);
+        }
+      },
+      returnLoan: async (contract, signer, loanId) => {
+        try {
+          await returnLoan(contract, signer, loanId);
+          get().fetchLoans(contract, signer);
+        } catch (err) {
+          console.error("Erro ao retornar um emprestimo:", err);
         }
       },
     }),

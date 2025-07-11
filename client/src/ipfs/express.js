@@ -9,9 +9,9 @@ if (!Promise.withResolvers) {
   };
 }
 
-import express from 'express';
-import multer from 'multer';
-import cors from 'cors';
+import express from "express";
+import multer from "multer";
+import cors from "cors";
 
 const app = express();
 const upload = multer();
@@ -21,29 +21,28 @@ app.use(express.json());
 const hashMap = new Map();
 
 async function createNode() {
-  const { createHelia } = await import('helia');
-  const { unixfs } = await import('@helia/unixfs');
+  const { createHelia } = await import("helia");
+  const { unixfs } = await import("@helia/unixfs");
 
   try {
     const helia = await createHelia();
-    console.log('Nó Helia inicializado:', helia);
     const fs = unixfs(helia);
     return { helia, fs };
   } catch (error) {
-    console.error('Erro ao inicializar o nó Helia:', error);
+    console.error("Erro ao inicializar o nó Helia:", error);
     throw error;
   }
 }
 
 async function run() {
-  hashMap.clear();//??????
+  hashMap.clear(); //??????
   const { fs, helia } = await createNode();
 
-  app.post('/upload', upload.single('file'), async (req, res) => {
+  app.post("/upload", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) {
         console.error('Nenhum arquivo enviado no campo "file"');
-        return res.status(400).json({ message: 'Nenhum arquivo enviado' });
+        return res.status(400).json({ message: "Nenhum arquivo enviado" });
       }
 
       const data = req.file.buffer;
@@ -54,77 +53,86 @@ async function run() {
       // Armazena o CID e o Content-Type no hashMap
       hashMap.set(originalname, {
         cid: cidStr,
-        contentType: req.file.mimetype || 'application/octet-stream',
+        contentType: req.file.mimetype || "application/octet-stream",
       });
 
-      console.log('Arquivo enviado:', {
+      console.log("Arquivo enviado:", {
         originalname,
         mimetype: req.file.mimetype,
         size: req.file.size,
         cid: cidStr,
       });
-      console.log('hashMap atualizado:', Array.from(hashMap.entries()));
+      console.log("hashMap atualizado:", Array.from(hashMap.entries()));
 
-      res.status(201).json({ message: 'Arquivo uploaded', name: originalname, cid: cidStr});
+      res
+        .status(201)
+        .json({ message: "Arquivo uploaded", name: originalname, cid: cidStr });
     } catch (error) {
-      console.error('Erro ao fazer upload:', error);
-      res.status(500).json({ message: 'Erro ao fazer upload do arquivo', error: error.message });
+      console.error("Erro ao fazer upload:", error);
+      res
+        .status(500)
+        .json({
+          message: "Erro ao fazer upload do arquivo",
+          error: error.message,
+        });
     }
   });
   //USO MAIS PARA ARQUIVO TEXTO
-  app.get('/fetch', async (req, res) => {
+  app.get("/fetch", async (req, res) => {
     const filename = req.body.filename;
     const fileData = hashMap.get(filename);
     if (!fileData) {
-      console.error('Arquivo não encontrado no hashMap:', filename);
-      return res.status(404).send('Não achou o arquivo');
+      console.error("Arquivo não encontrado no hashMap:", filename);
+      return res.status(404).send("Não achou o arquivo");
     }
 
     try {
-      let text = '';
+      let text = "";
       const decoder = new TextDecoder();
       for await (const chunk of fs.cat(fileData.cid)) {
         text += decoder.decode(chunk, { stream: true });
       }
       res.status(200).send(text);
     } catch (error) {
-      console.error('Erro ao recuperar arquivo:', error);
-      res.status(500).send('Erro ao recuperar o arquivo');
+      console.error("Erro ao recuperar arquivo:", error);
+      res.status(500).send("Erro ao recuperar o arquivo");
     }
   });
   //USO PARA FETCH DE IMAGEM
-  app.get('/ipfs/:name', async (req, res) => {
+  app.get("/ipfs/:name", async (req, res) => {
     const name = req.params.name;
     if (!name) {
-      console.error('Nome do arquivo não fornecido');
-      return res.status(400).send('Nome do arquivo não fornecido');
+      console.error("Nome do arquivo não fornecido");
+      return res.status(400).send("Nome do arquivo não fornecido");
     }
 
     try {
-
       const fileData = hashMap.get(name);
       if (!fileData) {
-        console.error('Nome de arquivo não encontrado no hashMap:', name);
-        console.log('Conteúdo atual do hashMap:', Array.from(hashMap.entries()));
-        return res.status(404).send('Nome de arquivo não encontrado');
+        console.error("Nome de arquivo não encontrado no hashMap:", name);
+        console.log(
+          "Conteúdo atual do hashMap:",
+          Array.from(hashMap.entries())
+        );
+        return res.status(404).send("Nome de arquivo não encontrado");
       }
 
       const { cid, contentType } = fileData;
-      
+
       if (!cid) {
-        console.error('Nome de arquivo não encontrado no hashMap:', name);
-        return res.status(404).send('Nome de arquivo não encontrado');
+        console.error("Nome de arquivo não encontrado no hashMap:", name);
+        return res.status(404).send("Nome de arquivo não encontrado");
       }
 
-      console.log('Servindo arquivo:', { cid, contentType, name });
+      console.log("Servindo arquivo:", { cid, contentType, name });
 
-      res.set('Content-Type', contentType);
+      res.set("Content-Type", contentType);
       for await (const chunk of fs.cat(cid)) {
         res.write(chunk);
       }
       res.end();
     } catch (error) {
-      console.error('Erro ao servir CID:', error);
+      console.error("Erro ao servir CID:", error);
       res.status(500).send(`Erro ao recuperar o arquivo: ${error.message}`);
     }
   });
@@ -134,8 +142,8 @@ async function run() {
     console.log(`IPFS rodando na porta:${PORT}`);
   });
 
-  process.on('SIGINT', async () => {
-    console.log('Encerrando o nó Helia...');
+  process.on("SIGINT", async () => {
+    console.log("Encerrando o nó Helia...");
     await helia.stop();
     process.exit(0);
   });
