@@ -38,7 +38,16 @@ function Emprestimos() {
           return loan.user.toUpperCase() === currentAccount.toUpperCase();
         });
         setUserLoans(filtered);
-        console.log("Filtered Loans: ", userLoans);
+        console.log("Filtered Loans Usuário: ", userLoans);
+      }
+      if (role === "library") {
+        const filtered = loans.filter((loan) => {
+          return (
+            loan.libraryFrom.toUpperCase() === currentAccount.toUpperCase()
+          );
+        });
+        setUserLoans(filtered);
+        console.log("Filtered Loans Biblioteca: ", userLoans);
       } else {
         setUserLoans(loans);
       }
@@ -55,11 +64,22 @@ function Emprestimos() {
     }
   };
 
+  const handleRejectLoan = async (loanId) => {
+    if (loanId !== null || loanId !== undefined) {
+      try {
+        console.log("Empréstimo rejeitado veshh");
+      } catch (e) {
+        console.log("Houve um erro ao aprovar um empréstimo: ", e);
+      }
+    }
+  };
+
   const handleReturnLoan = async (loanId) => {
     console.log("Esse é o loanId", loanId);
     if (loanId !== undefined && loanId !== null) {
       console.log("Esse é o loan id", loanId);
       try {
+        console.log("Signer: ", signer);
         await returnLoan(contract, signer, loanId);
       } catch (e) {
         console.log("Houve um erro ao retornar um empréstimo: ", e);
@@ -122,19 +142,33 @@ function Emprestimos() {
               {role === "library" &&
                 loan.status !== 2 && ( // Show buttons if not already returned
                   <Box mt={2} display="flex" gap={1}>
-                    {loan.status === 0 && ( // Only show Accept if status is "Em Análise"
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAcceptLoan(loan.id)}
-                        disabled={actionLoading[loan.id]}
-                      >
-                        {actionLoading[loan.id] ? (
-                          <CircularProgress size={24} />
-                        ) : (
-                          "Aceitar"
-                        )}
-                      </Button>
+                    {loan.status === 0 && (
+                      <>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleAcceptLoan(loan.id)}
+                          disabled={actionLoading[loan.id]}
+                        >
+                          {actionLoading[loan.id] ? (
+                            <CircularProgress size={24} />
+                          ) : (
+                            "Aceitar"
+                          )}
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleRejectLoan(loan.id)}
+                          disabled={actionLoading[loan.id]}
+                        >
+                          {actionLoading[loan.id] ? (
+                            <CircularProgress size={24} />
+                          ) : (
+                            "Rejeitar"
+                          )}
+                        </Button>
+                      </>
                     )}
                     {loan.status === 1 && (
                       <Button

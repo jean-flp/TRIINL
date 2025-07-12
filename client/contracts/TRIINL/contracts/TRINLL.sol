@@ -250,7 +250,7 @@ contract TRIINL is
     function returnLoan(uint256 loanId) external onlyRole(USER_ROLE) {
         //require(loanRequests[loanId]== true); verificar depois a criação para impedir em chamadas de loan que nao existem assim user mintando
         LoanRequest storage loan = loanRequests[loanId];
-        require(loan.user == msg.sender && loan.status == 1, "Invalid return");
+        require(loan.libraryFrom == msg.sender && loan.status == 1, "Invalid return");
 
         // Mintar novamente os tokens para a biblioteca
         _mint(loan.libraryFrom, loan.bookId, loan.amount, "");
