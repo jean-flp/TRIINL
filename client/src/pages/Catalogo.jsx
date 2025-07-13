@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Button,
@@ -37,6 +37,10 @@ function BrowseLibrary() {
   const contract = userStore((state) => state.contract);
   const signer = userStore((state) => state.signer);
 
+  const activeLibraries = useMemo(() => {
+    return libs.filter((library) => library.isActive === true);
+  }, [libs]);
+
   useEffect(() => {
     if (contract == null) {
       showSnackbar("Faça Login!", "error");
@@ -53,23 +57,23 @@ function BrowseLibrary() {
 
   useEffect(() => {
     if (selectedLibrary) {
-      const selectedLibObject = libs.find(
+      // Find the library object using its address
+      const selectedLibObject = activeLibraries.find(
         (lib) => lib.address === selectedLibrary
       );
-
       if (selectedLibObject) {
-        const filtered = books.filter((book) => {
-          return book.instituicao === selectedLibObject.address;
-        });
+        const filtered = books.filter(
+          (book) => book.instituicao === selectedLibObject.address
+        );
         setFilteredBooks(filtered);
-        console.log("Filtered books:", filtered);
       } else {
         setFilteredBooks([]);
       }
     } else {
+      // If no library is selected, show all books
       setFilteredBooks(books);
     }
-  }, [books, selectedLibrary, libs]);
+  }, [books, selectedLibrary, activeLibraries]);
 
   const handleLibraryChange = (event) => {
     setSelectedLibrary(event.target.value);
@@ -104,7 +108,7 @@ function BrowseLibrary() {
             onChange={handleLibraryChange}
             label="Escolha uma biblioteca"
           >
-            {libs.map((lib) => (
+            {activeLibraries.map((lib) => (
               <MenuItem key={lib.address} value={lib.address}>
                 {lib.name}
               </MenuItem>

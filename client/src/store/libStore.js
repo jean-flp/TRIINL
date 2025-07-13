@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
-import { getAllLibraryAdresses } from "../api/contractFunctions";
+import {
+  deactivateLibrary,
+  getAllLibraryAdresses,
+} from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
 
 export const libStore = create(
@@ -38,6 +41,14 @@ export const libStore = create(
           });
         } catch (err) {
           console.error("Erro ao buscar bibliotecas:", err);
+        }
+      },
+      desativarBiblioteca: async (contract, libAddress) => {
+        try {
+          await deactivateLibrary(contract, libAddress);
+          get().fetchLibs();
+        } catch (libError) {
+          console.log("Erro ao desativar biblioteca", libError);
         }
       },
     }),

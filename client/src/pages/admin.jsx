@@ -21,6 +21,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { userStore } from "../store/userLogin";
+import { libStore } from "../store/libStore";
 
 const schemaRegistro = yup.object().shape({
   walletLib: yup
@@ -36,6 +37,12 @@ const schemaRegistro = yup.object().shape({
 const schemaRole = yup.object().shape({
   accountRole: yup.string().required("Perfil é obrigatório"),
   walletUser: yup.string().required("Endereço do usuário é obrigatório"),
+});
+
+const schemaDesativar = yup.object().shape({
+  walletLib: yup
+    .string()
+    .required("Endereço Instituição Obrigatório é obrigatório"),
 });
 
 const roles = [
@@ -112,6 +119,8 @@ function Admin() {
     registerLibrary,
   } = userStore();
 
+  const { desativarBiblioteca } = libStore();
+
   const {
     register: registerRegistro,
     handleSubmit: handleSubmitRegistro,
@@ -128,8 +137,15 @@ function Admin() {
     resolver: yupResolver(schemaRole),
   });
 
+  const {
+    register: registerDesativar,
+    handleSubmit: handleSubmitDesativar,
+    formState: { errors: errorsDesativar },
+  } = useForm({
+    resolver: yupResolver(schemaDesativar),
+  });
+
   const onSubmitRegistro = async (data) => {
-    console.log("📘 Dados do registro da biblioteca:", data);
     await registerLibrary(
       contract,
       data.walletLib,
@@ -141,19 +157,25 @@ function Admin() {
     setOpen(true);
     setShowSuccessAlertRegistro(true);
 
-    // Opcional: ocultar o alerta após alguns segundos
     setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
   };
 
   const onSubmitRole = async (data) => {
-    console.log("👤 Dados da atribuição de perfil:", data);
     await setOtherRole(contract, data.accountRole, data.walletUser);
 
     setOpen(true);
     setShowSuccessAlertRole(true);
 
-    // Opcional: ocultar o alerta após alguns segundos
     setTimeout(() => setShowSuccessAlertRole(false), 4000);
+  };
+
+  const onSubmitDesativar = async (data) => {
+    await desativarBiblioteca(contract, data.walletLib);
+
+    setOpen(true);
+    setShowSuccessAlertRegistro(true);
+
+    setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
   };
 
   const handleClose = (event, reason) => {
@@ -183,7 +205,7 @@ function Admin() {
     <Box maxWidth="600px" margin="auto" mt={4}>
       <Box>
         <Typography variant="h4" gutterBottom>
-          Cadastro de Bibliotecas
+          Opções da Bibliotecas
         </Typography>
         <Accordion>
           <AccordionSummary aria-controls="panel1-content" id="panel1-header">
@@ -235,6 +257,38 @@ function Admin() {
                 />
                 <Button type="submit" variant="contained">
                   Cadastrar Biblioteca
+                </Button>
+              </Stack>
+            </form>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Desativar Biblioteca</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {showSuccessAlertRegistro && (
+              <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+              >
+                <Alert severity="success">
+                  Biblioteca desativada com sucesso!
+                </Alert>
+              </Snackbar>
+            )}
+            <form onSubmit={handleSubmitDesativar(onSubmitDesativar)}>
+              <Stack spacing={2}>
+                <TextField
+                  {...registerDesativar("walletLib")}
+                  label="Endereço Biblioteca"
+                  error={!!errorsDesativar.walletLib}
+                  helperText={errorsDesativar.walletLib?.message}
+                  fullWidth
+                />
+                <Button type="submit" variant="contained">
+                  Desativar Biblioteca
                 </Button>
               </Stack>
             </form>
