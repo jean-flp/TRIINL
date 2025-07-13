@@ -7,8 +7,10 @@ import {
   hasRole,
   registerLibrary,
   selfRegisterAsUser,
+  setUserEmail,
 } from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
+import { libStore } from "./libStore";
 
 export const userStore = create(
   devtools(
@@ -58,12 +60,8 @@ export const userStore = create(
         const role = await get().role;
 
         if (role === "error" || role == null) {
-          const i = await selfRegisterAsUser(contrato, signer);
-          if (i === 1) {
-            set({ role: "user" });
-          } else {
-            set({ role: null });
-          }
+          console.log("Não chegou aqui");
+          set({ role: "unregistered" });
         }
 
         set({
@@ -101,6 +99,32 @@ export const userStore = create(
       },
       registerLibrary: async (contract, libAddress, name, email, sigla) => {
         await registerLibrary(contract, libAddress, name, email, sigla);
+      },
+      associarEmail: async (contract, signer, email) => {
+        const { libs, fetchLibs } = libStore.getState();
+        await fetchLibs(contract);
+
+        const filtered = libs.filter((lib) => {
+          const userDomainIndex = email.indexOf("@");
+          if (userDomainIndex === -1) {
+            return false;
+          }
+          const userDomain = email.substring(userDomainIndex);
+          if (lib.email.toUpperCase() === userDomain.toUpperCase()) {
+            return true;
+          }
+        });
+        console.log(filtered);
+        if (filtered) {
+          const i = await selfRegisterAsUser(contract, signer);
+          if (i === 1) {
+            const e = await setUserEmail(contract, signer, email);
+            console.log("Conseguiuuuuuuu");
+            set({ role: "user" });
+          } else {
+            set({ role: null });
+          }
+        }
       },
     }),
     {

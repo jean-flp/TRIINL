@@ -1,27 +1,95 @@
-
-import { useState } from "react";
-import theme from "../assets/palette";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Livros from "../assets/livros.jpg";
-import { deactivateLibrary } from "../api/contractFunctions";
+import React, { useState } from "react";
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Container,
+  Paper,
+} from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { userStore } from "../store/userLogin";
-import { getUri } from "../api/contractFunctions";
+
 function Login() {
-  const {contract,signer } = userStore() ;
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const {
+    currentAccount,
+    contract,
+    isConnected,
+    token,
+    role,
+    signer,
+    associarEmail,
+  } = userStore();
 
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+    if (error) {
+      setError("");
+    }
+  };
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
 
-
-  const handleLogin = async () => {
-      console.log(await getUri(contract,0))
-      //deactivateLibrary(contract, "0x84E24c091c859b5855B90f1E8c74503F20FBf296" )
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    await associarEmail(contract, signer, email);
   };
 
   return (
-        <Button variant="contained" color="primary" onClick={handleLogin}>
-          Login
-        </Button>
+    <Container component="main" maxWidth="xs">
+      <Paper
+        elevation={6}
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          Sign In
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={{ mt: 1, width: "100%" }}
+        >
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={handleEmailChange}
+            error={!!error}
+            helperText={error}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Sign In
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
-
 export default Login;

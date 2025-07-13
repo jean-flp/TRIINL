@@ -1,25 +1,23 @@
-import * as React from 'react';
-import Logout from '@mui/icons-material/Logout';
-import { Account } from '@toolpad/core/Account';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import customTheme from './themes';
-import Button from '@mui/material/Button';
-import WalletIcon from '@mui/icons-material/Wallet';
-import Stack from '@mui/material/Stack';
+import { useEffect, useState, React, useMemo } from "react";
+import Logout from "@mui/icons-material/Logout";
+import { Account } from "@toolpad/core/Account";
+import { AppProvider } from "@toolpad/core/AppProvider";
+import customTheme from "./themes";
+import Button from "@mui/material/Button";
+import WalletIcon from "@mui/icons-material/Wallet";
+import Stack from "@mui/material/Stack";
 
 import { userStore } from "../store/userLogin";
+import { useNavigate } from "react-router-dom";
 
 export default function AuthButton() {
-  const {
-    currentAccount,
-    isConnected,
-    connectWallet,
-    disconnectWallet,
-    role,
-  } = userStore();
+  const navigate = useNavigate();
+  const { currentAccount, isConnected, connectWallet, disconnectWallet, role } =
+    userStore();
 
-  const [session, setSession] = React.useState(null);
-  const [error, setError] = React.useState(null);
+  const [session, setSession] = useState(null);
+  const [error, setError] = useState(null);
+  const updatedRole = userStore.getState().role || null;
 
   const handleConnect = async () => {
     try {
@@ -32,14 +30,16 @@ export default function AuthButton() {
         user: "Usuário",
         admin: "Administrador",
         library: "Biblioteca",
-        null:"Cadastre-se Realizando a Transação !!!"
+        unregistered: "Cadastre seu Email!",
+        null: "Cadastre-se Realizando a Transação !!!",
       };
       // Sessão criada com nome e role
       setSession({
         user: {
           name: updatedAccount,
           email: roleLabels[updatedRole],
-          image: 'https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg',
+          image:
+            "https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg",
         },
       });
     } catch (err) {
@@ -48,8 +48,14 @@ export default function AuthButton() {
     }
   };
 
+  useEffect(() => {
+    if (updatedRole === "unregistered") {
+      navigate("/login");
+    }
+  }, [updatedRole]);
+
   // Fake auth (só para que AppProvider aceite session)
-  const authentication = React.useMemo(
+  const authentication = useMemo(
     () => ({
       signIn: () => {},
       signOut: () => {
@@ -71,23 +77,27 @@ export default function AuthButton() {
           Conectar Wallet
         </Button>
       ) : (
-        <AppProvider authentication={authentication} session={session} theme={customTheme}>
+        <AppProvider
+          authentication={authentication}
+          session={session}
+          theme={customTheme}
+        >
           <Account
             slotProps={{
               signInButton: {
-                sx:{display:"none"},
-               },
+                sx: { display: "none" },
+              },
               signOutButton: {
-                color: 'error',
+                color: "error",
                 startIcon: <Logout />,
               },
               preview: {
-                variant: 'expanded',
+                variant: "expanded",
                 slotProps: {
                   avatarIconButton: {
-                    sx: { width: 'fit-content', margin: 'auto' },
+                    sx: { width: "fit-content", margin: "auto" },
                   },
-                  avatar: { variant: 'rounded' },
+                  avatar: { variant: "rounded" },
                 },
               },
             }}

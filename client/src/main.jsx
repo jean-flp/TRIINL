@@ -1,6 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter, useNavigate } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  useNavigate,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 import useMetaMaskListener from "../src/utils/metaMaskListener";
 
@@ -25,7 +29,7 @@ function NavigationHandler() {
     }
   }, [isConnected, navigate]);
 
-  return null; 
+  return null;
 }
 
 function AppRouter() {
@@ -103,6 +107,25 @@ function AppRouter() {
         ];
         break;
 
+      case "unregistered":
+        routes = [
+          {
+            Component: App,
+            children: [
+              {
+                path: "/",
+                Component: Layout,
+                children: [
+                  { index: true, Component: landingPage },
+                  { path: "/login", Component: Login },
+                  { path: "*", element: <NavigationHandler /> },
+                ],
+              },
+            ],
+          },
+        ];
+        break;
+
       default:
         routes = [
           {
@@ -113,7 +136,7 @@ function AppRouter() {
                 Component: Layout,
                 children: [
                   { index: true, Component: landingPage },
-                  { path: "*", element: <NavigationHandler /> }
+                  { path: "*", element: <NavigationHandler /> },
                 ],
               },
             ],
