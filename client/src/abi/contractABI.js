@@ -514,6 +514,25 @@ export const contractABI = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "userAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "email",
+        type: "string",
+      },
+    ],
+    name: "UserEmailSet",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "DEFAULT_ADMIN_ROLE",
     outputs: [
@@ -820,6 +839,11 @@ export const contractABI = [
         type: "string",
       },
       {
+        internalType: "string",
+        name: "enderecoEmail",
+        type: "string",
+      },
+      {
         internalType: "bool",
         name: "isActive",
         type: "bool",
@@ -842,6 +866,25 @@ export const contractABI = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_userAddress",
+        type: "address",
+      },
+    ],
+    name: "getUserEmail",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -931,6 +974,11 @@ export const contractABI = [
       {
         internalType: "string",
         name: "sigla",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "enderecoEmail",
         type: "string",
       },
       {
@@ -1098,6 +1146,11 @@ export const contractABI = [
       {
         internalType: "string",
         name: "sigla",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "enderecoEmail",
         type: "string",
       },
     ],
@@ -1310,6 +1363,19 @@ export const contractABI = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "_email",
+        type: "string",
+      },
+    ],
+    name: "setUserEmail",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes4",
         name: "interfaceId",
         type: "bytes4",
@@ -1407,6 +1473,25 @@ export const contractABI = [
       },
     ],
     name: "uri",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "userEmails",
     outputs: [
       {
         internalType: "string",

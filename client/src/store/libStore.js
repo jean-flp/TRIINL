@@ -5,7 +5,7 @@ import { devtools } from "zustand/middleware";
 
 export const libStore = create(
   devtools(
-    (set,get) => ({
+    (set, get) => ({
       libs: [],
       totalLibs: 0,
       fetchLibs: async (contract) => {
@@ -15,12 +15,22 @@ export const libStore = create(
           let temp;
           for (const addr of allLibAdresses) {
             try {
-              const [name, sigla, isActive] = await contract.libraries(addr);
+              const [name, sigla, email, isActive] =
+                await contract.libraries(addr);
               if (name && name.length > 0) {
-                libraries_array.push({ address: addr, name, sigla, isActive });
+                libraries_array.push({
+                  address: addr,
+                  name,
+                  sigla,
+                  email,
+                  isActive,
+                });
               }
             } catch (libError) {
-              console.warn(`Could not fetch details for library ${addr} via mapping getter:`, libError.message);
+              console.warn(
+                `Could not fetch details for library ${addr} via mapping getter:`,
+                libError.message
+              );
             }
           }
           set({

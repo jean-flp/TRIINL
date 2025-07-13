@@ -29,6 +29,7 @@ contract TRIINL is
     struct Library {
         string name;
         string sigla;
+        string enderecoEmail;
         bool isActive;
     }
 
@@ -44,6 +45,7 @@ contract TRIINL is
     mapping(address => Library) public libraries;
     address[] public registeredLibraryAddresses;
     mapping(uint256 => LoanRequest) public loanRequests;
+    mapping(address => string) public userEmails;
     uint256 public nextLoanId;
     uint256 public nextBookId;
 
@@ -59,6 +61,7 @@ contract TRIINL is
     event BookRestock(uint256 bookId, address libraryFrom, uint256 amount);
     event LibraryRegistered(address libraryAddress, string sigla);
     event LibraryDeactivated(address libraryAddress);
+    event UserEmailSet(address userAddress, string email);
 
     constructor(address defaultAdmin)
         ERC1155("http://localhost:3000/ipfs/")
@@ -74,16 +77,26 @@ contract TRIINL is
     _grantRole(USER_ROLE, msg.sender);
     }
 
+    function setUserEmail(string memory _email) external{
+        require(bytes(_email).length > 0, "Email cannot be empty");
+        userEmails[msg.sender] = _email;
+        emit UserEmailSet(msg.sender, _email);
+    }
+
+    function getUserEmail(address _userAddress) external view returns (string memory){
+        return userEmails[_userAddress];
+    }
 
     function registerLibrary(
         address libraryAddress,
         string memory name,
-        string memory sigla
+        string memory sigla,
+        string memory enderecoEmail
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(libraries[libraryAddress].isActive == false, "Library already exists and is active");
         require(
-            bytes(name).length > 0 && bytes(sigla).length > 0,
-            "Invalid input"
+            bytes(name).length > 0 && bytes(sigla).length > 0 && bytes(enderecoEmail).length > 0,
+            "Invalid input: name, sigla or email cannot be empty"
         );
 
         bool found = false;
@@ -97,7 +110,7 @@ contract TRIINL is
             registeredLibraryAddresses.push(libraryAddress);
         }
         
-        libraries[libraryAddress] = Library(name, sigla, true);
+        libraries[libraryAddress] = Library(name, sigla, enderecoEmail, true);
         _grantRole(LIBRARY_ROLE, libraryAddress);
         emit LibraryRegistered(libraryAddress, sigla);
     }
@@ -108,12 +121,13 @@ contract TRIINL is
         returns (
             string memory name,
             string memory sigla,
+            string memory enderecoEmail,
             bool isActive
         )
     {
         Library memory lib = libraries[libraryAddress];
-        require(lib.isActive, "Library does not exist");
-        return (lib.name, lib.sigla, lib.isActive);
+        require(lib.isActive, "Library does not exist or is inactive");
+        return (lib.name, lib.sigla, lib.enderecoEmail, lib.isActive);
     }
 
     function setURI(string memory newuri)
@@ -158,7 +172,7 @@ contract TRIINL is
         string memory ano,
         string memory uriSuffix
     ) external onlyRole(LIBRARY_ROLE) {
-        require(libraries[msg.sender].isActive, "Invalid library");
+        require(libraries[msg.sender].isActive, "Invalid library: sender is not an active library");
         for(uint256 i = 0; i < nextBookId; i++){
             if (strcmp(books[i].isbn, isbn) && books[i].instituicao == msg.sender) {
                 revert("Book with this ISBN already exists for this institution");
@@ -170,7 +184,7 @@ contract TRIINL is
                 bytes(isbn).length > 0 &&
                 bytes(ano).length > 0 &&
                 bytes(uriSuffix).length > 0,
-            "Invalid book data"
+            "Invalid book data: all fields must be non-empty"
         );
 
         uint256 id = nextBookId++;

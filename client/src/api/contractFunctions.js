@@ -1,7 +1,7 @@
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { ethers } from "ethers";
-import {contractABI} from "../abi/contractABI";
-import {contractAddress} from "../abi/contractAddress";
+import { contractABI } from "../abi/contractABI";
+import { contractAddress } from "../abi/contractAddress";
 
 //VIEW FUNCTIONS
 
@@ -13,7 +13,7 @@ export function getRoles() {
   return {
     admin: ADMIN_ROLE,
     library: LIBRARY_ROLE,
-    user: USER_ROLE
+    user: USER_ROLE,
   };
 }
 export async function selfRegisterAsUser(contract, signer) {
@@ -24,31 +24,30 @@ export async function selfRegisterAsUser(contract, signer) {
     // envia a transação para executar selfRegisterAsUser
     const tx = await contractWithSigner.selfRegisterAsUser();
 
-    console.log('Transação enviada, hash:', tx.hash);
+    console.log("Transação enviada, hash:", tx.hash);
 
     // espera a confirmação da transação
     const receipt = await tx.wait();
 
-    console.log('Transação confirmada:', receipt);
-    console.log('Transação confirmada:', receipt.transactionHash);
-    return receipt.confirmations
+    console.log("Transação confirmada:", receipt);
+    console.log("Transação confirmada:", receipt.transactionHash);
+    return receipt.confirmations;
   } catch (error) {
-    console.error('Erro na selfRegisterAsUser:', error);
+    console.error("Erro na selfRegisterAsUser:", error);
   }
 }
 
-
 export async function balanceOf(contract, account, id) {
-    try {
-        // Chama a função 'balanceOf' do contrato
-        const balance = await contract.balanceOf(account, id);
+  try {
+    // Chama a função 'balanceOf' do contrato
+    const balance = await contract.balanceOf(account, id);
 
-        // balance é um BigNumber, converta para string para exibir
-        return balance.toString();
-    } catch (error) {
-        console.error("Erro ao buscar saldo:", error);
-        throw error;
-    }
+    // balance é um BigNumber, converta para string para exibir
+    return balance.toString();
+  } catch (error) {
+    console.error("Erro ao buscar saldo:", error);
+    throw error;
+  }
 }
 
 export async function getBalanceOfBatch(contract, accounts, ids) {
@@ -57,7 +56,7 @@ export async function getBalanceOfBatch(contract, accounts, ids) {
     const balances = await contract.balanceOfBatch(accounts, ids);
 
     // balances é um array de BigNumbers, converta para string para facilitar leitura
-    return balances.map(balance => balance.toString());
+    return balances.map((balance) => balance.toString());
   } catch (error) {
     console.error("Erro ao buscar saldos batch:", error);
     throw error;
@@ -68,7 +67,10 @@ export async function getBook(contract, bookId) {
   try {
     const book = await contract.books(bookId);
     // O retorno é um objeto com várias propriedades
-    const bookBalanceBigInt = await contract.balanceOf(book.instituicao, bookId);
+    const bookBalanceBigInt = await contract.balanceOf(
+      book.instituicao,
+      bookId
+    );
     const bookBalance = Number(bookBalanceBigInt);
     return {
       title: book.title,
@@ -77,7 +79,7 @@ export async function getBook(contract, bookId) {
       ano: book.ano,
       uri: book.uri,
       amount: bookBalance,
-      instituicao: book.instituicao
+      instituicao: book.instituicao,
     };
   } catch (error) {
     console.error("Erro ao buscar o livro:", error);
@@ -115,8 +117,9 @@ export async function getBookRETIRAR(contract, bookId) {
 
 export async function getLibrary(contract, libraryAddress) {
   try {
-    const [name, sigla, isActive] = await contract.getLibrary(libraryAddress);
-    return { name, sigla, isActive };
+    const [name, sigla, email, isActive] =
+      await contract.getLibrary(libraryAddress);
+    return { name, sigla, email, isActive };
   } catch (error) {
     console.error("Erro ao obter biblioteca:", error);
     throw error;
@@ -135,8 +138,6 @@ export async function getRoleAdmin(contract, role) {
 
 export async function hasRole(contract, role, account) {
   try {
-     console.log("🔍 hasRole - role:", role);
-    console.log("🔍 hasRole - account:", account);
     const result = await contract.hasRole(role, account);
     return result; // true ou false
   } catch (error) {
@@ -144,6 +145,32 @@ export async function hasRole(contract, role, account) {
     throw error;
   }
 }
+
+// Função para definir o e-mail do usuário no contrato
+export const setUserEmail = async (contract, signer, email) => {
+  try {
+    const tx = await contract.connect(signer).setUserEmail(email);
+    await tx.wait();
+    console.log(
+      `E-mail do usuário ${email} definido com sucesso para ${signer.getAddress()}`
+    );
+    return true;
+  } catch (error) {
+    console.error("Erro ao definir e-mail do usuário:", error);
+    return false;
+  }
+};
+
+// Função para obter o e-mail do usuário do contrato
+export const getUserEmail = async (contract, userAddress) => {
+  try {
+    const email = await contract.getUserEmail(userAddress);
+    return email;
+  } catch (error) {
+    console.error("Erro ao obter e-mail do usuário:", error);
+    return ""; // Retorna string vazia em caso de erro
+  }
+};
 
 export async function isApprovedForAll(contract, account, operator) {
   try {
@@ -162,6 +189,7 @@ export async function getLibraryInfo(contract, libraryAddress) {
     return {
       name: libraryData.name,
       sigla: libraryData.sigla,
+      email: libraryData.enderecoEmail,
       isActive: libraryData.isActive,
     };
   } catch (error) {
@@ -179,7 +207,7 @@ export async function getLoanRequest(contract, loanRequestId) {
       libraryFrom: loanRequest.libraryFrom,
       bookId: loanRequest.bookId.toString(),
       amount: loanRequest.amount.toString(),
-      status: loanRequest.status,  // normalmente um uint8 representando um estado
+      status: loanRequest.status, // normalmente um uint8 representando um estado
     };
   } catch (error) {
     console.error("Erro ao obter o pedido de empréstimo:", error);
@@ -190,18 +218,18 @@ export async function getLoanRequest(contract, loanRequestId) {
 export async function getNextBookId(contract) {
   try {
     const nextId = await contract.nextBookId();
-    return nextId 
+    return nextId;
   } catch (error) {
     console.error("Erro ao obter o próximo Book ID:", error);
     throw error;
   }
 }
 
-export async function getAllLibraryAdresses(contract){
-  try{
+export async function getAllLibraryAdresses(contract) {
+  try {
     const allLib = await contract.getAllRegisteredLibraryAddresses();
     return allLib;
-  }catch(error){
+  } catch (error) {
     console.error("Erro ao obter o próximo Book ID:", error);
     throw error;
   }
@@ -267,8 +295,6 @@ export async function getUri(contract, tokenId) {
   }
 }
 
-
-
 //FUNCTIONS
 export async function approveLoan(contract, loanId, signer) {
   try {
@@ -316,7 +342,6 @@ export async function grantRole(contract, role, account) {
   }
 }
 
-
 export async function mint(
   contract,
   signer,
@@ -328,14 +353,9 @@ export async function mint(
   uriSuffix
 ) {
   try {
-    const tx = await contract.connect(signer).mint(
-      amount,
-      title,
-      author,
-      isbn,
-      ano,
-      uriSuffix
-    );
+    const tx = await contract
+      .connect(signer)
+      .mint(amount, title, author, isbn, ano, uriSuffix);
     await tx.wait(); // Espera a confirmação da transação
     console.log("Mint realizado com sucesso!");
     return tx;
@@ -367,9 +387,20 @@ export async function pauseContract(contract, signer) {
   }
 }
 
-export async function registerLibrary(contract, libraryAddress, name, sigla) {
+export async function registerLibrary(
+  contract,
+  libraryAddress,
+  name,
+  email,
+  sigla
+) {
   try {
-    const tx = await contract.registerLibrary(libraryAddress, name, sigla);
+    const tx = await contract.registerLibrary(
+      libraryAddress,
+      name,
+      email,
+      sigla
+    );
     await tx.wait(); // espera a confirmação da transação
     console.log("Biblioteca registrada com sucesso!");
   } catch (error) {
@@ -380,7 +411,9 @@ export async function registerLibrary(contract, libraryAddress, name, sigla) {
 
 export async function renounceRole(contract, signer, role, callerConfirmation) {
   try {
-    const tx = await contract.connect(signer).renounceRole(role, callerConfirmation);
+    const tx = await contract
+      .connect(signer)
+      .renounceRole(role, callerConfirmation);
     await tx.wait(); // espera a confirmação da transação
     console.log("Role renunciada com sucesso!");
   } catch (error) {
@@ -389,14 +422,22 @@ export async function renounceRole(contract, signer, role, callerConfirmation) {
   }
 }
 
-export async function requestLoanAndGetId(contract, signer, libraryFrom, bookId, amount) {
+export async function requestLoanAndGetId(
+  contract,
+  signer,
+  libraryFrom,
+  bookId,
+  amount
+) {
   try {
     // Envia a tx da função requestLoan
-    const tx = await contract.connect(signer).requestLoan(libraryFrom, bookId, amount);
+    const tx = await contract
+      .connect(signer)
+      .requestLoan(libraryFrom, bookId, amount);
     const receipt = await tx.wait(); // Espera a confirmação da tx
 
     // Busca o evento LoanRequested no receipt
-    const event = receipt.events.find(e => e.event === "LoanRequested");
+    const event = receipt.events.find((e) => e.event === "LoanRequested");
 
     if (event) {
       const loanId = event.args.loanId;
@@ -406,7 +447,6 @@ export async function requestLoanAndGetId(contract, signer, libraryFrom, bookId,
       console.log("Evento LoanRequested não encontrado no receipt.");
       return null;
     }
-
   } catch (error) {
     console.error("Erro ao solicitar empréstimo:", error);
     throw error;
@@ -418,9 +458,9 @@ export async function returnLoan(contract, signer, loanId) {
     // Conecta o signer e chama a função returnLoan com o loanId
     const tx = await contract.connect(signer).returnLoan(loanId);
     const receipt = await tx.wait(); // Espera a confirmação da transação
-    console.log('Empréstimo devolvido com sucesso:', receipt);
+    console.log("Empréstimo devolvido com sucesso:", receipt);
   } catch (error) {
-    console.error('Erro ao devolver empréstimo:', error);
+    console.error("Erro ao devolver empréstimo:", error);
   }
 }
 
@@ -431,41 +471,63 @@ export async function revokeRole(contract, signer, role, account) {
     const receipt = await tx.wait(); // Espera a confirmação da transação
     console.log(`Role revogada com sucesso para a conta ${account}`, receipt);
   } catch (error) {
-    console.error('Erro ao revogar role:', error);
+    console.error("Erro ao revogar role:", error);
   }
 }
 
 //tirar funções batchs
-export async function safeBatchTransferFrom(contract, signer, from, to, ids, values, data) {
+export async function safeBatchTransferFrom(
+  contract,
+  signer,
+  from,
+  to,
+  ids,
+  values,
+  data
+) {
   try {
     // Chama a função safeBatchTransferFrom com os parâmetros necessários
-    const tx = await contract.connect(signer).safeBatchTransferFrom(from, to, ids, values, data);
+    const tx = await contract
+      .connect(signer)
+      .safeBatchTransferFrom(from, to, ids, values, data);
     const receipt = await tx.wait(); // Espera a confirmação da transação
-    console.log('Transferência em lote realizada com sucesso', receipt);
+    console.log("Transferência em lote realizada com sucesso", receipt);
   } catch (error) {
-    console.error('Erro na transferência em lote:', error);
+    console.error("Erro na transferência em lote:", error);
   }
 }
 
-export async function safeTransferFrom(contract, signer, from, to, id, value, data) {
+export async function safeTransferFrom(
+  contract,
+  signer,
+  from,
+  to,
+  id,
+  value,
+  data
+) {
   try {
     // Executa a transferência segura de token único
-    const tx = await contract.connect(signer).safeTransferFrom(from, to, id, value, data);
+    const tx = await contract
+      .connect(signer)
+      .safeTransferFrom(from, to, id, value, data);
     const receipt = await tx.wait(); // Aguarda a confirmação da transação
-    console.log('Transferência segura realizada com sucesso:', receipt);
+    console.log("Transferência segura realizada com sucesso:", receipt);
   } catch (error) {
-    console.error('Erro na transferência segura:', error);
+    console.error("Erro na transferência segura:", error);
   }
 }
 
 export async function setApprovalForAll(contract, signer, operator, approved) {
   try {
     // Envia a transação para aprovar ou revogar aprovação para o operador
-    const tx = await contract.connect(signer).setApprovalForAll(operator, approved);
+    const tx = await contract
+      .connect(signer)
+      .setApprovalForAll(operator, approved);
     const receipt = await tx.wait(); // espera a confirmação da transação
-    console.log('Aprovação atualizada com sucesso:', receipt);
+    console.log("Aprovação atualizada com sucesso:", receipt);
   } catch (error) {
-    console.error('Erro ao atualizar aprovação:', error);
+    console.error("Erro ao atualizar aprovação:", error);
   }
 }
 
@@ -474,19 +536,29 @@ export async function setURI(contract, signer, newuri) {
     // Envia a transação para atualizar a URI
     const tx = await contract.connect(signer).setURI(newuri);
     const receipt = await tx.wait(); // espera a confirmação da transação
-    console.log('URI atualizada com sucesso:', receipt);
+    console.log("URI atualizada com sucesso:", receipt);
   } catch (error) {
-    console.error('Erro ao atualizar URI:', error);
+    console.error("Erro ao atualizar URI:", error);
   }
 }
 
-export async function transferBetweenLibraries(contract, signer, from, to, id, amount, data) {
+export async function transferBetweenLibraries(
+  contract,
+  signer,
+  from,
+  to,
+  id,
+  amount,
+  data
+) {
   try {
-    const tx = await contract.connect(signer).transferBetweenLibraries(from, to, id, amount, data);
-    const receipt = await tx.wait();  // espera a confirmação da transação
-    console.log('Transferência entre bibliotecas realizada:', receipt);
+    const tx = await contract
+      .connect(signer)
+      .transferBetweenLibraries(from, to, id, amount, data);
+    const receipt = await tx.wait(); // espera a confirmação da transação
+    console.log("Transferência entre bibliotecas realizada:", receipt);
   } catch (error) {
-    console.error('Erro na transferência entre bibliotecas:', error);
+    console.error("Erro na transferência entre bibliotecas:", error);
   }
 }
 
@@ -494,9 +566,9 @@ export async function unpause(contract, signer) {
   try {
     const tx = await contract.connect(signer).unpause();
     const receipt = await tx.wait();
-    console.log('Contrato despausado:', receipt);
+    console.log("Contrato despausado:", receipt);
   } catch (error) {
-    console.error('Erro ao despausar o contrato:', error);
+    console.error("Erro ao despausar o contrato:", error);
   }
 }
 
@@ -522,8 +594,7 @@ export async function deactivateLibrary(contractInstance, libraryAddress) {
     console.log("Gas used tx2:", receipt2.gasUsed.toString());
     console.log(`Library tx2 ${libraryAddress} successfully deactivated.`);
 
-
-    return  receipt2;
+    return receipt2;
   } catch (error) {
     console.error("Error deactivating library:", error.message);
     throw error;
