@@ -121,61 +121,97 @@ function Admin() {
 
   const { desativarBiblioteca } = libStore();
 
+  const defaultCadastrarLib = {
+    walletLib: "",
+    nameLib: "",
+    siglaLib: "",
+    emailLib: "",
+  };
+
+  const defaultDesativar = {
+    walletLib: "",
+  };
+
+  const defaultAlterarPerfil = {
+    accountRole: "user",
+    walletUser: "",
+  };
   const {
     register: registerRegistro,
     handleSubmit: handleSubmitRegistro,
     formState: { errors: errorsRegistro },
+    reset: resetRegisterRegistro,
   } = useForm({
     resolver: yupResolver(schemaRegistro),
+    defaultValues: defaultCadastrarLib,
   });
 
   const {
     register: registerRole,
     handleSubmit: handleSubmitRole,
     formState: { errors: errorsRole },
+    reset: resetRegisterRole,
   } = useForm({
     resolver: yupResolver(schemaRole),
+    defaultValues: defaultAlterarPerfil,
   });
 
   const {
     register: registerDesativar,
     handleSubmit: handleSubmitDesativar,
     formState: { errors: errorsDesativar },
+    reset: resetRegisterDesativar,
   } = useForm({
     resolver: yupResolver(schemaDesativar),
+    defaultValues: defaultDesativar,
   });
 
   const onSubmitRegistro = async (data) => {
-    await registerLibrary(
-      contract,
-      data.walletLib,
-      data.nameLib,
-      data.siglaLib,
-      data.emailLib
-    );
+    try {
+      await registerLibrary(
+        contract,
+        data.walletLib,
+        data.nameLib,
+        data.siglaLib,
+        data.emailLib
+      );
 
-    setOpen(true);
-    setShowSuccessAlertRegistro(true);
+      resetRegisterRegistro();
 
-    setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+      setOpen(true);
+      setShowSuccessAlertRegistro(true);
+
+      setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+    } catch (err) {
+      console.error("Falhou ao tentar registrar biblioteca:", err);
+    }
   };
 
   const onSubmitRole = async (data) => {
-    await setOtherRole(contract, data.accountRole, data.walletUser);
-
-    setOpen(true);
-    setShowSuccessAlertRole(true);
-
-    setTimeout(() => setShowSuccessAlertRole(false), 4000);
+    try {
+      await setOtherRole(contract, data.accountRole, data.walletUser);
+      resetRegisterRole();
+      setOpen(true);
+      setShowSuccessAlertRole(true);
+      setTimeout(() => setShowSuccessAlertRole(false), 4000);
+    } catch (err) {
+      console.error("Falhou ao tentar alterar a role:", err);
+    }
   };
 
   const onSubmitDesativar = async (data) => {
-    await desativarBiblioteca(contract, data.walletLib);
+    try {
+      await desativarBiblioteca(contract, data.walletLib);
 
-    setOpen(true);
-    setShowSuccessAlertRegistro(true);
+      resetRegisterDesativar();
 
-    setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+      setOpen(true);
+      setShowSuccessAlertRegistro(true);
+
+      setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+    } catch (err) {
+      console.error("Falhou ao tentar desativar:", err);
+    }
   };
 
   const handleClose = (event, reason) => {
