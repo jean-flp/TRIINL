@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Box,
   Button,
+  Container,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { loanStore } from "../store/loanStore";
@@ -96,7 +97,7 @@ function Emprestimos() {
   }
 
   return (
-    <Box maxWidth="600px" margin="auto" mt={4}>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
         My Loans
       </Typography>
@@ -108,6 +109,9 @@ function Emprestimos() {
           <Accordion key={loan.id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography sx={{ width: "10%", flexShrink: 0 }}>{}</Typography>
+              <Typography>
+                <strong>Título:</strong> {loan.book.title} | Status:
+              </Typography>
               <Typography
                 sx={{
                   color:
@@ -190,7 +194,7 @@ function Emprestimos() {
           </Accordion>
         ))
       )}
-    </Box>
+    </Container>
   );
 }
 
