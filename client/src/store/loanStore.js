@@ -6,6 +6,8 @@ import {
   approveLoan,
   returnLoan,
   getNextLoanId,
+  bookWithUser,
+  rejectLoan,
 } from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
 import { bookStore } from "../store/bookStore";
@@ -91,6 +93,22 @@ export const loanStore = create(
           get().fetchLoans(contract, signer);
         } catch (err) {
           console.error("Erro ao retornar um emprestimo:", err);
+        }
+      },
+      loanWithUser: async (contract, signer, loanId) => {
+        try {
+          await bookWithUser(contract, signer, loanId);
+          get().fetchLoans(contract, signer);
+        } catch (err) {
+          console.error("Erro ao atualizar status de um emprestimo:", err);
+        }
+      },
+      rejectLoan: async (contract, signer, loanId) => {
+        try {
+          await rejectLoan(contract, signer, loanId);
+          get().fetchLoans(contract, signer);
+        } catch (err) {
+          console.error("Erro ao rejeitar de um emprestimo:", err);
         }
       },
     }),

@@ -636,6 +636,19 @@ export const contractABI = [
     inputs: [
       {
         internalType: "uint256",
+        name: "loanId",
+        type: "uint256",
+      },
+    ],
+    name: "bookWithUser",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "",
         type: "uint256",
       },
@@ -1176,6 +1189,19 @@ export const contractABI = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "loanId",
+        type: "uint256",
+      },
+    ],
+    name: "rejectLoan",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

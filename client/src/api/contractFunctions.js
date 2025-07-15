@@ -600,3 +600,30 @@ export async function deactivateLibrary(contractInstance, libraryAddress) {
     throw error;
   }
 }
+
+export const bookWithUser = async (contract, signer, loanId) => {
+  try {
+    if (!contract) throw new Error("Contract instance is not available.");
+    const tx = await contract.connect(signer).bookWithUser(loanId);
+    const receipt = await tx.wait();
+    return receipt;
+  } catch (error) {
+    console.error(`Error marking loan ${loanId} as withdrawn:`, error);
+
+    throw error;
+  }
+};
+
+export const rejectLoan = async (contract, signer, loanId) => {
+  try {
+    if (!contract) throw new Error("Contract instance is not available.");
+
+    const tx = await contract.connect(signer).rejectLoan(loanId);
+
+    const receipt = await tx.wait();
+    return receipt;
+  } catch (error) {
+    console.error(`Error rejecting loan ${loanId}:`, error);
+    throw error;
+  }
+};

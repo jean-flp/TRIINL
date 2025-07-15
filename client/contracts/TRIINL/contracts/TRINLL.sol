@@ -38,7 +38,7 @@ contract TRIINL is
         address libraryFrom;
         uint256 bookId;
         uint256 amount;
-        uint8 status; // 0: PENDING, 1: APPROVED, 2: RETURNED
+        uint8 status; // 0: Em espera, 1: Retirar, 2: Entregue, 3: Retornar, 4: Rejeitado
     }
 
     mapping(uint256 => Book) public books;
@@ -261,10 +261,10 @@ contract TRIINL is
         emit LoanApproved(loanId, msg.sender);
     }
 
-    function returnLoan(uint256 loanId) external onlyRole(USER_ROLE) {
+    function returnLoan(uint256 loanId) external onlyRole(LIBRARY_ROLE) {
         //require(loanRequests[loanId]== true); verificar depois a criação para impedir em chamadas de loan que nao existem assim user mintando
         LoanRequest storage loan = loanRequests[loanId];
-        require(loan.libraryFrom == msg.sender && loan.status == 1, "Invalid return");
+        require(loan.libraryFrom == msg.sender && loan.status == 3, "Invalid return");
 
         // Mintar novamente os tokens para a biblioteca
         _mint(loan.libraryFrom, loan.bookId, loan.amount, "");
@@ -329,5 +329,25 @@ contract TRIINL is
 
     function getAllRegisteredLibraryAddresses() public view returns (address[] memory) {
         return registeredLibraryAddresses;
+    }
+
+    function bookWithUser(uint256 loanId) external onlyRole(LIBRARY_ROLE){
+        LoanRequest storage loan = loanRequests[loanId];
+        require(loan.libraryFrom == msg.sender && loan.status == 1, "Invalid return");
+
+        // Atualiza o status do empréstimo para RETURNED
+        loan.status = 3;
+        emit LoanReturned(loanId, loan.libraryFrom);
+
+    }
+
+        function rejectLoan(uint256 loanId) external onlyRole(LIBRARY_ROLE){
+        LoanRequest storage loan = loanRequests[loanId];
+        require(loan.libraryFrom == msg.sender && loan.status == 0, "Invalid return");
+
+        // Atualiza o status do empréstimo para RETURNED
+        loan.status = 4;
+        emit LoanReturned(loanId, loan.libraryFrom);
+
     }
 }
