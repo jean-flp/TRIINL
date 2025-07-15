@@ -28,7 +28,6 @@ function BookCard({ book, onLoan }) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
-    // Create an async function inside useEffect to fetch the cover
     const fetchCover = async () => {
       setIsImageLoading(true);
       try {
@@ -39,7 +38,6 @@ function BookCard({ book, onLoan }) {
         }
       } catch (error) {
         console.error("Failed to fetch book cover:", error);
-        // Set a placeholder image on error
         setCoverUrl(
           "https://placehold.co/345x200/2c3e50/ffffff?text=Capa+Indisponível"
         );
@@ -49,7 +47,7 @@ function BookCard({ book, onLoan }) {
     };
 
     fetchCover();
-  }, [book]); // Re-run this effect if the book prop changes
+  }, [book]);
 
   return (
     <Card
@@ -65,11 +63,10 @@ function BookCard({ book, onLoan }) {
       ) : (
         <CardMedia
           component="img"
-          sx={{ height: 200, objectFit: "contain", pt: 1 }} // Use contain to see the whole cover
+          sx={{ height: 200, objectFit: "contain", pt: 1 }}
           image={coverUrl}
           title={book.title}
           onError={(e) => {
-            // Fallback for broken image links
             e.target.onerror = null;
             e.target.src =
               "https://placehold.co/345x200/2c3e50/ffffff?text=Erro";
@@ -129,7 +126,6 @@ function BrowseLibrary() {
     } else {
       const fetchData = async () => {
         setLoading(true);
-        // Fetch books and libraries in parallel for speed
         await Promise.all([fetchBooks(contract), fetchLibs(contract)]);
         setLoading(false);
       };

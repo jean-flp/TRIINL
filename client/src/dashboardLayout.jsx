@@ -12,34 +12,42 @@ import { userStore } from "../src/store/userLogin";
 // Navegação por perfil
 const NAVIGATION_ADMIN = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "login", title: "Login", icon: <DashboardIcon /> },
   { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
   { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
   { kind: "header", title: "Área Biblioteca" },
-  { segment: "cadastroLivro", title: "Cadastro de Livros", icon: <TimelineIcon /> },
+  {
+    segment: "cadastroLivro",
+    title: "Cadastro de Livros",
+    icon: <TimelineIcon />,
+  },
   { kind: "header", title: "Administrador" },
   { segment: "admin", title: "Área Administrador", icon: <TimelineIcon /> },
 ];
 
 const NAVIGATION_USER = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "login", title: "Login", icon: <DashboardIcon /> },
   { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
   { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
 ];
 
 const NAVIGATION_LIB = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "login", title: "Login", icon: <DashboardIcon /> },
   { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
   { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
   { kind: "header", title: "Área Biblioteca" },
-  { segment: "cadastroLivro", title: "Cadastro de Livros", icon: <TimelineIcon /> },
+  {
+    segment: "cadastroLivro",
+    title: "Cadastro de Livros",
+    icon: <TimelineIcon />,
+  },
 ];
 
-const NAVIGATION_LOGOFF = [
-  { kind: "header", title: "TRIINL" },
+const NAVIGATION_UNR = [
+  { kind: "header", title: "Área Usuário" },
+  { segment: "login", title: "Informe seu Email", icon: <TimelineIcon /> },
 ];
+
+const NAVIGATION_LOGOFF = [{ kind: "header", title: "TRIINL" }];
 
 function AppProviderTheme() {
   const { role, currentAccount } = userStore();
@@ -58,6 +66,9 @@ function AppProviderTheme() {
         break;
       case "user":
         navigation = NAVIGATION_USER;
+        break;
+      case "unregistered":
+        navigation = NAVIGATION_UNR;
         break;
       default:
         navigation = NAVIGATION_LOGOFF;

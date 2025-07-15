@@ -14,12 +14,20 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 import { putBookCover } from "../utils/ipfsAPI";
+const currentYear = new Date().getFullYear();
 
 const schema = yup.object().shape({
   title: yup.string().required("Título é obrigatório"),
   author: yup.string().required("Autor é obrigatório"),
   isbn: yup.string().required("ISBN é obrigatório"),
-  ano: yup.string().required("Ano é obrigatório"),
+  ano: yup
+    .string()
+    .required("Ano é obrigatório")
+    .min(700, "O ano de publicação parece muito antigo") // Define o ano mínimo
+    .max(
+      currentYear,
+      `O ano não pode ser no futuro (maior que ${currentYear})`
+    ),
   capa: yup
     .mixed()
     .required("A imagem da capa é obrigatória")

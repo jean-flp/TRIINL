@@ -51,7 +51,6 @@ function AppRouter() {
                 Component: Layout,
                 children: [
                   { index: true, Component: landingPage },
-                  { path: "/login", Component: Login },
                   { path: "/catalogo", Component: Catalogo },
                   { path: "/emprestimos", Component: Emprestimos },
                   { path: "*", element: <NavigationHandler /> },
@@ -72,7 +71,6 @@ function AppRouter() {
                 Component: Layout,
                 children: [
                   { index: true, Component: landingPage },
-                  { path: "/login", Component: Login },
                   { path: "/catalogo", Component: Catalogo },
                   { path: "/emprestimos", Component: Emprestimos },
                   { path: "/cadastroLivro", Component: BookForm },
@@ -94,7 +92,6 @@ function AppRouter() {
                 Component: Layout,
                 children: [
                   { index: true, Component: landingPage },
-                  { path: "/login", Component: Login },
                   { path: "/catalogo", Component: Catalogo },
                   { path: "/emprestimos", Component: Emprestimos },
                   { path: "/cadastroLivro", Component: BookForm },
