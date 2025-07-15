@@ -6,39 +6,43 @@ import customTheme from "./components/themes";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import TimelineIcon from "@mui/icons-material/AbcSharp";
+import CollectionsBookmarkIcon from "@mui/icons-material/CollectionsBookmark";
 
 import { userStore } from "../src/store/userLogin";
+import AnalyticsIcon from "@mui/icons-material/Analytics";
+import AssignmentAddIcon from "@mui/icons-material/AssignmentAdd";
+import BallotIcon from "@mui/icons-material/Ballot";
 
 // Navegação por perfil
 const NAVIGATION_ADMIN = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
-  { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
+  { segment: "catalogo", title: "Catálogo", icon: <CollectionsBookmarkIcon /> },
+  { segment: "emprestimos", title: "Empréstimos", icon: <BallotIcon /> },
   { kind: "header", title: "Área Biblioteca" },
   {
     segment: "cadastroLivro",
     title: "Cadastro de Livros",
-    icon: <TimelineIcon />,
+    icon: <AssignmentAddIcon />,
   },
   { kind: "header", title: "Administrador" },
-  { segment: "admin", title: "Área Administrador", icon: <TimelineIcon /> },
+  { segment: "admin", title: "Área Administrador", icon: <AnalyticsIcon /> },
 ];
 
 const NAVIGATION_USER = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
-  { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
+  { segment: "catalogo", title: "Catálogo", icon: <CollectionsBookmarkIcon /> },
+  { segment: "emprestimos", title: "Empréstimos", icon: <BallotIcon /> },
 ];
 
 const NAVIGATION_LIB = [
   { kind: "header", title: "Área Usuário" },
-  { segment: "catalogo", title: "Catálogo", icon: <TimelineIcon /> },
-  { segment: "emprestimos", title: "Empréstimos", icon: <TimelineIcon /> },
+  { segment: "catalogo", title: "Catálogo", icon: <CollectionsBookmarkIcon /> },
+  { segment: "emprestimos", title: "Empréstimos", icon: <BallotIcon /> },
   { kind: "header", title: "Área Biblioteca" },
   {
     segment: "cadastroLivro",
     title: "Cadastro de Livros",
-    icon: <TimelineIcon />,
+    icon: <AssignmentAddIcon />,
   },
 ];
 
