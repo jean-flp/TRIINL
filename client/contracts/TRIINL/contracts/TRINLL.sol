@@ -189,19 +189,19 @@ contract TRIINL is
 
         uint256 id = nextBookId++;
 
-        string memory baseURI = uri(id);
-        string memory fullURI = concatenate(baseURI, uriSuffix);
+        //string memory baseURI = uri(id);
+        //string memory fullURI = concatenate(baseURI, uriSuffix);
 
         books[id] = Book(
             title,
             author,
             isbn,
             ano,
-            fullURI,
+            uriSuffix,
             msg.sender
         );
         _mint(msg.sender, id, amount, "");
-        emit BookCreated(id, title, fullURI);
+        emit BookCreated(id, title, uriSuffix);
     }
 
     function mintRestock(uint256 amount,uint256 id) external onlyRole(LIBRARY_ROLE){
