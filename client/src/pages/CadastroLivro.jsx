@@ -46,8 +46,6 @@ const schema = yup.object().shape({
 });
 
 const BookForm = () => {
-  const [showSuccessAlertRegistro, setShowSuccessAlertRegistro] =
-    useState(false);
   const [open, setOpen] = useState(false);
   const defaultValues = {
     title: "",
@@ -86,11 +84,11 @@ const BookForm = () => {
     try {
       await addBook(contract, signer, book);
       reset();
-
+      setPreview(null);
       setOpen(true);
       setShowSuccessAlertRegistro(true);
 
-      setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+      setTimeout(() => setOpen(false), 4000);
     } catch (err) {
       console.error("Erro ao salvar livro:", err);
     }
@@ -194,15 +192,15 @@ const BookForm = () => {
           </Stack>
         </form>
       </Paper>
-      {showSuccessAlertRegistro && (
+      
         <Snackbar
-          open={showSuccessAlertRegistro}
+          open={open}
           autoHideDuration={6000}
           onClose={handleClose}
         >
           <Alert severity="success">Livro cadastrado com sucesso!</Alert>
         </Snackbar>
-      )}
+      
     </>
   );
 };
