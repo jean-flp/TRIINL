@@ -48,6 +48,7 @@ contract TRIINL is
     mapping(address => string) public userEmails;
     uint256 public nextLoanId;
     uint256 public nextBookId;
+    uint256 public _paused;
 
     event LoanRequested(
         uint256 loanId,
@@ -60,8 +61,12 @@ contract TRIINL is
     event BookCreated(uint256 bookId, string title, string uri);
     event BookRestock(uint256 bookId, address libraryFrom, uint256 amount);
     event LibraryRegistered(address libraryAddress, string sigla);
+    event LibraryRegistrationFailed(address indexed libraryAddress, string reason);
     event LibraryDeactivated(address libraryAddress);
     event UserEmailSet(address userAddress, string email);
+
+    error LibraryAlreadyExists(address libraryAddress);
+    error InvalidInput(string field);
 
     constructor(address defaultAdmin)
         ERC1155("http://localhost:3000/ipfs/")
@@ -70,6 +75,7 @@ contract TRIINL is
         _grantRole(LIBRARY_ROLE, defaultAdmin);
         _setRoleAdmin(LIBRARY_ROLE, DEFAULT_ADMIN_ROLE);
         _setRoleAdmin(USER_ROLE, DEFAULT_ADMIN_ROLE);
+        _paused = 0;
     }
 
     function selfRegisterAsUser() external {
@@ -93,11 +99,23 @@ contract TRIINL is
         string memory sigla,
         string memory enderecoEmail
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(libraries[libraryAddress].isActive == false, "Library already exists and is active");
-        require(
-            bytes(name).length > 0 && bytes(sigla).length > 0 && bytes(enderecoEmail).length > 0,
-            "Invalid input: name, sigla or email cannot be empty"
-        );
+        if (libraries[libraryAddress].isActive) {
+            emit LibraryRegistrationFailed(libraryAddress, "Library already exists and is active");
+            revert LibraryAlreadyExists(libraryAddress);
+        }
+
+        if (bytes(name).length == 0) {
+            emit LibraryRegistrationFailed(libraryAddress, "Invalid input: name cannot be empty");
+            revert InvalidInput("name");
+        }
+        if (bytes(sigla).length == 0) {
+            emit LibraryRegistrationFailed(libraryAddress, "Invalid input: sigla cannot be empty");
+            revert InvalidInput("sigla");
+        }
+        if (bytes(enderecoEmail).length == 0) {
+            emit LibraryRegistrationFailed(libraryAddress, "Invalid input: email cannot be empty");
+            revert InvalidInput("enderecoEmail");
+        }
 
         bool found = false;
         for(uint i = 0; i < registeredLibraryAddresses.length; i++) {
@@ -139,10 +157,12 @@ contract TRIINL is
 
     function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _pause();
+        _paused = 1;
     }
 
     function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
         _unpause();
+        _paused = 0;
     }
 
     function memcmp(bytes memory a, bytes memory b)
@@ -349,5 +369,8 @@ contract TRIINL is
         loan.status = 4;
         emit LoanReturned(loanId, loan.libraryFrom);
 
+    }
+    function getPaused()public view returns(uint256){
+        return _paused;
     }
 }

@@ -245,7 +245,7 @@ export async function getNextLoanId(contract) {
   }
 }
 
-export async function isPaused(contract) {
+export async function _isPaused(contract) {
   try {
     const paused = await contract.paused();
     return paused; // booleano indicando se está pausado ou não

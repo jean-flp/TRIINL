@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import { userStore } from "../store/userLogin";
 import { libStore } from "../store/libStore";
+import { _isPaused, pauseContract, unpause } from "../api/contractFunctions";
 
 const schemaRegistro = yup.object().shape({
   walletLib: yup
@@ -109,6 +110,7 @@ function Admin() {
     useState(false);
   const [showSuccessAlertRole, setShowSuccessAlertRole] = useState(false);
   const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     contract,
@@ -184,6 +186,10 @@ function Admin() {
       setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
     } catch (err) {
       console.error("Falhou ao tentar registrar biblioteca:", err);
+      setOpen(true);
+      setShowSuccessAlertRegistro(false);
+      setErrorMessage(err.message || "Failed to register library");
+      setTimeout(() => setErrorMessage(""), 4000);
     }
   };
 
@@ -222,20 +228,36 @@ function Admin() {
     setOpen(false);
   };
 
-  const handlePauseToggle = (event) => {
+  const handlePauseToggle = async (event) => {
     const checked = event.target.checked;
     setIsPaused(checked);
 
     if (checked) {
       // Switch está ON
       console.log("Contrato foi DESPAUSADO");
-      // Sua função para despausar aqui
+      await unpause(contract,signer);
     } else {
       // Switch está OFF
       console.log("Contrato foi PAUSADO");
-      // Sua função para pausar aqui
+      await pauseContract(contract,signer);
+
     }
   };
+  const _isPausedFetch = async () => {
+    try {
+      const paused = await _isPaused(contract);
+      console.log("valor paused",paused)
+      setIsPaused(!paused);
+    } catch (err) {
+      console.error("Failed to fetch pause status:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (contract) {
+      _isPausedFetch();
+    }
+  }, [contract]);
 
   return (
     <Box maxWidth="600px" margin="auto" mt={4}>
@@ -259,6 +281,15 @@ function Admin() {
                 <Alert severity="success">
                   Biblioteca cadastrada com sucesso!
                 </Alert>
+              </Snackbar>
+            )}
+            {errorMessage && (
+              <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+              >
+                <Alert severity="error">{errorMessage}</Alert>
               </Snackbar>
             )}
             <form onSubmit={handleSubmitRegistro(onSubmitRegistro)}>
