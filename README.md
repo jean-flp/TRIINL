@@ -7,6 +7,8 @@ Passo-a-passo para configurar o projeto:
  ```
    No primeiro terminal:
 
+   npm i
+
    npm run install-all #Irá instalar todas as depêndencias.
 
    npm run app #Irá rodar o aplicativo principal + nó ipfs + backend
