@@ -184,8 +184,15 @@ function BrowseLibrary() {
   };
 
   const handleLoanBook = (book) => {
-    requestLoan(contract, signer, book);
-    showSnackbar(`Solicitação para "${book.title}" enviada!`, "success");
+    try {
+      requestLoan(contract, signer, book);
+      showSnackbar(`Solicitação para "${book.title}" enviada!`, "success");
+    } catch (err) {
+      showSnackbar(
+        "Ocorreu um erro ao tentar solicitar um empréstimo!",
+        "error"
+      );
+    }
   };
 
   return (

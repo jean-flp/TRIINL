@@ -102,29 +102,38 @@ export const userStore = create(
         await registerLibrary(contract, libAddress, name, email, sigla);
       },
       associarEmail: async (contract, signer, email) => {
-        const { libs, fetchLibs } = libStore.getState();
-        await fetchLibs(contract);
+        try {
+          const { libs, fetchLibs } = libStore.getState();
+          await fetchLibs(contract);
 
-        const filtered = libs.filter((lib) => {
-          const userDomainIndex = email.indexOf("@");
-          if (userDomainIndex === -1) {
-            return false;
-          }
-          const userDomain = email.substring(userDomainIndex);
-          if (lib.email.toUpperCase() === userDomain.toUpperCase()) {
-            return true;
-          }
-        });
-        console.log(filtered);
-        if (filtered) {
-          const i = await selfRegisterAsUser(contract, signer);
-          if (i === 1) {
-            const e = await setUserEmail(contract, signer, email);
-            console.log("Conseguiuuuuuuu");
-            set({ role: "user" });
+          const filtered = libs.filter((lib) => {
+            const userDomainIndex = email.indexOf("@");
+            if (userDomainIndex === -1) {
+              return false;
+            }
+            const userDomain = email.substring(userDomainIndex);
+            // Ensure lib.email exists before calling toUpperCase
+            return (
+              lib.email && lib.email.toUpperCase() === userDomain.toUpperCase()
+            );
+          });
+
+          console.log(filtered);
+
+          if (filtered.length > 0) {
+            const e = await selfRegisterAsUser(contract, signer, email);
+            if (e === 1) {
+              set({ role: "user" });
+            }
           } else {
-            set({ role: null });
+            console.log("Domínio de email não associado a nenhuma biblioteca.");
           }
+        } catch (err) {
+          console.error(
+            "O usuário rejeitou a transação ou ocorreu um erro:",
+            err
+          );
+          set({ role: null }); // Ensure the role is null on failure
         }
       },
       getEmail: async (contract, userAddress) => {

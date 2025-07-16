@@ -78,15 +78,12 @@ contract TRIINL is
         _paused = 0;
     }
 
-    function selfRegisterAsUser() external {
+    function selfRegisterAsUser(string memory _email) external {
     require(!hasRole(USER_ROLE, msg.sender), "Already has USER_ROLE");
+    require(bytes(_email).length > 0, "Email cannot be empty");
+    userEmails[msg.sender] = _email;
     _grantRole(USER_ROLE, msg.sender);
-    }
-
-    function setUserEmail(string memory _email) external{
-        require(bytes(_email).length > 0, "Email cannot be empty");
-        userEmails[msg.sender] = _email;
-        emit UserEmailSet(msg.sender, _email);
+    emit UserEmailSet(msg.sender, _email);
     }
 
     function getUserEmail(address _userAddress) external view returns (string memory){

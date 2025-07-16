@@ -30,7 +30,7 @@ function Login() {
     }
   };
   const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const re = /^[^\s@]+@[^\s@]+/;
     return re.test(String(email).toLowerCase());
   };
 

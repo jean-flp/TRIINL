@@ -16,13 +16,13 @@ export function getRoles() {
     user: USER_ROLE,
   };
 }
-export async function selfRegisterAsUser(contract, signer) {
+export async function selfRegisterAsUser(contract, signer, email) {
   try {
     // conecta o contrato ao signer (carteira que irá assinar a tx)
     const contractWithSigner = contract.connect(signer);
 
     // envia a transação para executar selfRegisterAsUser
-    const tx = await contractWithSigner.selfRegisterAsUser();
+    const tx = await contractWithSigner.selfRegisterAsUser(email);
 
     console.log("Transação enviada, hash:", tx.hash);
 
@@ -145,21 +145,6 @@ export async function hasRole(contract, role, account) {
     throw error;
   }
 }
-
-// Função para definir o e-mail do usuário no contrato
-export const setUserEmail = async (contract, signer, email) => {
-  try {
-    const tx = await contract.connect(signer).setUserEmail(email);
-    await tx.wait();
-    console.log(
-      `E-mail do usuário ${email} definido com sucesso para ${signer.getAddress()}`
-    );
-    return true;
-  } catch (error) {
-    console.error("Erro ao definir e-mail do usuário:", error);
-    return false;
-  }
-};
 
 // Função para obter o e-mail do usuário do contrato
 export const getUserEmail = async (contract, userAddress) => {
