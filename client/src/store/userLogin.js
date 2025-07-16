@@ -8,7 +8,6 @@ import {
   hasRole,
   registerLibrary,
   selfRegisterAsUser,
-  setUserEmail,
 } from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
 import { libStore } from "./libStore";
