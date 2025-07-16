@@ -71,7 +71,6 @@ function Emprestimos() {
       filtered = loans;
     }
     setUserLoans(filtered);
-    console.log(filtered);
   }, [loans, role, currentAccount]);
 
   // Generic handler to manage loading state for actions

@@ -21,7 +21,7 @@ const schema = yup.object().shape({
   author: yup.string().required("Autor é obrigatório"),
   isbn: yup.string().required("ISBN é obrigatório"),
   ano: yup
-    .string()
+    .number()
     .required("Ano é obrigatório")
     .min(700, "O ano de publicação parece muito antigo") // Define o ano mínimo
     .max(
@@ -79,10 +79,11 @@ const BookForm = () => {
       title: data.title,
       author: data.author,
       isbn: data.isbn,
-      ano: data.ano,
+      ano: data.ano.toString(),
       uriSuffix: await putBookCover(data.capa[0], currentAccount),
       amount: data.quantidade,
     };
+    console.log(book);
 
     try {
       await addBook(contract, signer, book);

@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { getContract } from "../utils/web3";
 import {
   getRoles,
+  getUserEmail,
   grantRole,
   hasRole,
   registerLibrary,
@@ -124,6 +125,14 @@ export const userStore = create(
           } else {
             set({ role: null });
           }
+        }
+      },
+      getEmail: async (contract, userAddress) => {
+        try {
+          const email = getUserEmail(contract, userAddress);
+          return email;
+        } catch (err) {
+          console.log("Houve um erro ao buscar o email do usuário");
         }
       },
     }),

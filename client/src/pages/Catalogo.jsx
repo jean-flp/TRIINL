@@ -23,6 +23,7 @@ import { libStore } from "../store/libStore";
 import { loanStore } from "../store/loanStore";
 import { getBookCover } from "../utils/ipfsAPI";
 
+// BookCard component remains the same...
 function BookCard({ book, onLoan }) {
   const [coverUrl, setCoverUrl] = useState("");
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -33,8 +34,12 @@ function BookCard({ book, onLoan }) {
       try {
         if (book && book.uri) {
           const url = await getBookCover(book.uri);
-
           setCoverUrl(url);
+        } else {
+          // Set a default if there's no URI
+          setCoverUrl(
+            "https://placehold.co/345x200/2c3e50/ffffff?text=Capa+Indisponível"
+          );
         }
       } catch (error) {
         console.error("Failed to fetch book cover:", error);
@@ -45,7 +50,6 @@ function BookCard({ book, onLoan }) {
         setIsImageLoading(false);
       }
     };
-
     fetchCover();
   }, [book]);
 
@@ -109,45 +113,70 @@ function BrowseLibrary() {
   const { books, fetchBooks } = bookStore();
   const { libs, fetchLibs } = libStore();
   const { requestLoan } = loanStore();
+  const { currentAccount, contract, role, signer, getEmail } = userStore();
+
   const [selectedLibrary, setSelectedLibrary] = useState("");
-  const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const { showSnackbar, SnackbarComponent } = useSnackbar();
-  const contract = userStore((state) => state.contract);
-  const signer = userStore((state) => state.signer);
+  const [activeLibraries, setActiveLibraries] = useState([]);
 
-  const activeLibraries = useMemo(() => {
-    return libs.filter((library) => library.isActive === true);
-  }, [libs]);
+  // Em seu componente BrowseLibrary...
 
   useEffect(() => {
-    if (contract == null) {
-      showSnackbar("Faça Login!", "error");
-    } else {
-      const fetchData = async () => {
-        setLoading(true);
-        await Promise.all([fetchBooks(contract), fetchLibs(contract)]);
+    const loadData = async () => {
+      if (!contract) return;
+      setLoading(true);
+      try {
+        await fetchLibs(contract);
+        await fetchBooks(contract);
+      } catch (error) {
+        console.error("Failed to load library data:", error);
+        showSnackbar("Failed to load data from the library.", "error");
+      } finally {
         setLoading(false);
-      };
-      fetchData();
-    }
+      }
+    };
+    loadData();
+    // Apenas 'contract' é necessário. As funções são estáveis.
   }, [contract]);
-
+  // This useEffect now correctly runs *after* libs are fetched
   useEffect(() => {
-    if (selectedLibrary) {
-      const filtered = books.filter(
-        (book) => book.instituicao === selectedLibrary
-      );
-      setFilteredBooks(filtered);
-    } else {
-      const activeLibAddresses = new Set(
-        activeLibraries.map((lib) => lib.address)
-      );
-      const allActiveBooks = books.filter((book) =>
-        activeLibAddresses.has(book.instituicao)
-      );
-      setFilteredBooks(allActiveBooks);
+    const calculateActiveLibraries = async () => {
+      let filteredLibs = [];
+      if (role === "user") {
+        try {
+          const email = await getEmail(contract, currentAccount);
+          const dominioEmail = email.substring(email.indexOf("@"));
+          filteredLibs = libs.filter(
+            (library) =>
+              library.isActive === true &&
+              library.email.toUpperCase() !== dominioEmail.toUpperCase()
+          );
+        } catch (e) {
+          console.error("Houve um erro ao pegar as bibliotecas:", e);
+        }
+      } else {
+        // This 'else' block now works because 'libs' is populated
+        filteredLibs = libs.filter((library) => library.isActive === true);
+      }
+      setActiveLibraries(filteredLibs);
+    };
+
+    if (libs.length > 0) {
+      calculateActiveLibraries();
     }
+  }, [libs, role, contract, currentAccount, getEmail]);
+
+  // --- 2. REFACTORED: Use useMemo for efficient filtering ---
+  // This replaces the two redundant useEffect hooks you had before
+  const filteredBooks = useMemo(() => {
+    if (selectedLibrary) {
+      return books.filter((book) => book.instituicao === selectedLibrary);
+    }
+    const activeLibAddresses = new Set(
+      activeLibraries.map((lib) => lib.address)
+    );
+    return books.filter((book) => activeLibAddresses.has(book.instituicao));
   }, [books, selectedLibrary, activeLibraries]);
 
   const handleLibraryChange = (event) => {
@@ -155,7 +184,6 @@ function BrowseLibrary() {
   };
 
   const handleLoanBook = (book) => {
-    console.log("Loan requested for book:", book);
     requestLoan(contract, signer, book);
     showSnackbar(`Solicitação para "${book.title}" enviada!`, "success");
   };
@@ -163,16 +191,11 @@ function BrowseLibrary() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
       >
         <Typography variant="h4" gutterBottom align="center">
           Explorar Acervo
         </Typography>
-
         <FormControl fullWidth margin="normal" sx={{ maxWidth: 500 }}>
           <InputLabel>Filtrar por Biblioteca</InputLabel>
           <Select
@@ -180,7 +203,6 @@ function BrowseLibrary() {
             onChange={handleLibraryChange}
             label="Filtrar por Biblioteca"
           >
-            {/* Add an option to show all books */}
             <MenuItem value="">
               <em>Todas as Bibliotecas</em>
             </MenuItem>
@@ -197,7 +219,6 @@ function BrowseLibrary() {
             <CircularProgress />
           </Box>
         ) : filteredBooks.length > 0 ? (
-          // Use a Grid container for a better layout
           <Grid container spacing={3} sx={{ mt: 3 }}>
             {filteredBooks.map((book) => (
               <Grid
@@ -207,7 +228,6 @@ function BrowseLibrary() {
                 sm={6}
                 md={4}
               >
-                {/* Render the new BookCard component */}
                 <BookCard book={book} onLoan={handleLoanBook} />
               </Grid>
             ))}
