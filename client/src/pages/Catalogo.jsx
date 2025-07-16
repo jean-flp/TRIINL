@@ -167,8 +167,6 @@ function BrowseLibrary() {
     }
   }, [libs, role, contract, currentAccount, getEmail]);
 
-  // --- 2. REFACTORED: Use useMemo for efficient filtering ---
-  // This replaces the two redundant useEffect hooks you had before
   const filteredBooks = useMemo(() => {
     if (selectedLibrary) {
       return books.filter((book) => book.instituicao === selectedLibrary);

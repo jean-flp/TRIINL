@@ -23,14 +23,9 @@ export async function selfRegisterAsUser(contract, signer, email) {
 
     // envia a transação para executar selfRegisterAsUser
     const tx = await contractWithSigner.selfRegisterAsUser(email);
-
-    console.log("Transação enviada, hash:", tx.hash);
-
     // espera a confirmação da transação
     const receipt = await tx.wait();
 
-    console.log("Transação confirmada:", receipt);
-    console.log("Transação confirmada:", receipt.transactionHash);
     return receipt.confirmations;
   } catch (error) {
     console.error("Erro na selfRegisterAsUser:", error);

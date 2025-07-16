@@ -21,7 +21,7 @@ const schema = yup.object().shape({
   author: yup.string().required("Autor é obrigatório"),
   isbn: yup.string().required("ISBN é obrigatório"),
   ano: yup
-    .number()
+    .number("O Ano deve ser um número")
     .required("Ano é obrigatório")
     .min(700, "O ano de publicação parece muito antigo") // Define o ano mínimo
     .max(
@@ -60,8 +60,7 @@ const BookForm = () => {
   const { books, addBook } = bookStore();
   const [preview, setPreview] = useState(null);
 
-  const { currentAccount, contract, isConnected, token, role, signer } =
-    userStore();
+  const { currentAccount, contract, signer } = userStore();
 
   const {
     register,
@@ -83,13 +82,12 @@ const BookForm = () => {
       uriSuffix: await putBookCover(data.capa[0], currentAccount),
       amount: data.quantidade,
     };
-    console.log(book);
 
     try {
       await addBook(contract, signer, book);
       reset();
-      setPreview(null);
 
+      setOpen(true);
       setShowSuccessAlertRegistro(true);
 
       setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
@@ -107,99 +105,105 @@ const BookForm = () => {
   };
 
   return (
-    <Paper
-      elevation={3} // Adds a subtle shadow
-      sx={{ p: 4, borderRadius: 2 }} // p: 4 adds padding on all sides
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={3}>
-          <Typography variant="h5" component="h1" gutterBottom>
-            Cadastrar Novo Livro
-          </Typography>
-          <TextField
-            {...register("title")}
-            label="Título"
-            error={!!errors.title}
-            helperText={errors.title?.message}
-            fullWidth
-          />
-          <TextField
-            {...register("author")}
-            label="Autor"
-            error={!!errors.author}
-            helperText={errors.author?.message}
-            fullWidth
-          />
-          <TextField
-            {...register("isbn")}
-            label="ISBN"
-            error={!!errors.isbn}
-            helperText={errors.isbn?.message}
-            fullWidth
-          />
-          <TextField
-            {...register("ano")}
-            label="Ano"
-            error={!!errors.ano}
-            helperText={errors.ano?.message}
-            fullWidth
-          />
-          <Controller
-            name="capa"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Button variant="outlined" component="label">
-                  Upload da Capa
-                  <input
-                    type="file"
-                    hidden
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setPreview(URL.createObjectURL(file));
-                        field.onChange(e.target.files);
-                      }
-                    }}
-                  />
-                </Button>
-                {errors.capa && (
-                  <Box color="error.main" fontSize="0.8rem" mt={1}>
-                    {errors.capa.message}
-                  </Box>
-                )}
-                {preview && (
-                  <Box mt={2}>
-                    <img
-                      src={preview}
-                      alt="Prévia da capa"
-                      style={{ maxWidth: "200px", borderRadius: "4px" }}
+    <>
+      <Paper
+        elevation={3} // Adds a subtle shadow
+        sx={{ p: 4, borderRadius: 2 }} // p: 4 adds padding on all sides
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack spacing={3}>
+            <Typography variant="h5" component="h1" gutterBottom>
+              Cadastrar Novo Livro
+            </Typography>
+            <TextField
+              {...register("title")}
+              label="Título"
+              error={!!errors.title}
+              helperText={errors.title?.message}
+              fullWidth
+            />
+            <TextField
+              {...register("author")}
+              label="Autor"
+              error={!!errors.author}
+              helperText={errors.author?.message}
+              fullWidth
+            />
+            <TextField
+              {...register("isbn")}
+              label="ISBN"
+              error={!!errors.isbn}
+              helperText={errors.isbn?.message}
+              fullWidth
+            />
+            <TextField
+              {...register("ano")}
+              label="Ano"
+              error={!!errors.ano}
+              helperText={errors.ano?.message}
+              fullWidth
+            />
+            <Controller
+              name="capa"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <Button variant="outlined" component="label">
+                    Upload da Capa
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setPreview(URL.createObjectURL(file));
+                          field.onChange(e.target.files);
+                        }
+                      }}
                     />
-                  </Box>
-                )}
-              </>
-            )}
-          />
-          <TextField
-            {...register("quantidade")}
-            label="Quantidade"
-            error={!!errors.quantidade}
-            helperText={errors.quantidade?.message}
-            fullWidth
-          />
-          {showSuccessAlertRegistro && (
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-              <Alert severity="success">Livro Cadastrado com Sucesso!</Alert>
-            </Snackbar>
-          )}
+                  </Button>
+                  {errors.capa && (
+                    <Box color="error.main" fontSize="0.8rem" mt={1}>
+                      {errors.capa.message}
+                    </Box>
+                  )}
+                  {preview && (
+                    <Box mt={2}>
+                      <img
+                        src={preview}
+                        alt="Prévia da capa"
+                        style={{ maxWidth: "200px", borderRadius: "4px" }}
+                      />
+                    </Box>
+                  )}
+                </>
+              )}
+            />
+            <TextField
+              {...register("quantidade")}
+              label="Quantidade"
+              error={!!errors.quantidade}
+              helperText={errors.quantidade?.message}
+              fullWidth
+            />
 
-          <Button type="submit" variant="contained">
-            Cadastrar Livro
-          </Button>
-        </Stack>
-      </form>
-    </Paper>
+            <Button type="submit" variant="contained">
+              Cadastrar Livro
+            </Button>
+          </Stack>
+        </form>
+      </Paper>
+      {showSuccessAlertRegistro && (
+        <Snackbar
+          open={showSuccessAlertRegistro}
+          autoHideDuration={6000}
+          onClose={handleClose}
+        >
+          <Alert severity="success">Livro cadastrado com sucesso!</Alert>
+        </Snackbar>
+      )}
+    </>
   );
 };
 

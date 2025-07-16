@@ -53,7 +53,6 @@ function Emprestimos() {
     }
   }, [contract, fetchLoans]);
 
-  // Filter loans based on user role whenever loans or role changes
   useEffect(() => {
     if (!loans || !currentAccount) return;
 
@@ -73,7 +72,6 @@ function Emprestimos() {
     setUserLoans(filtered);
   }, [loans, role, currentAccount]);
 
-  // Generic handler to manage loading state for actions
   const handleAction = async (loanId, actionFunc) => {
     setActionLoading((prev) => ({ ...prev, [loanId]: true }));
     try {
