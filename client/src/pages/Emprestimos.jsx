@@ -13,6 +13,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { loanStore } from "../store/loanStore";
 import { userStore } from "../store/userLogin";
+import { balanceOf, getLoanRequest } from "../api/contractFunctions";
 
 const statusConfig = {
   0: { text: "Em Análise", color: "warning" },
@@ -101,9 +102,33 @@ function Emprestimos() {
     handleAction(loanId, () => loanWithUser(contract, signer, loanId));
   };
 
-  // Status 3 -> 2
-  const handleReturnLoan = (loanId) => {
+  // // Status 3 -> 2
+  // const handleReturnLoan = (loanId) => {
+  //   handleAction(loanId, () => returnLoan(contract, signer, loanId));
+  // };
+
+  const handleReturnLoan = async (loanId) => {
+  try {
+    const loan = await getLoanRequest(contract, loanId);
+    console.log("EMPRESTIMO:",loan);
+    const balance = await checkUserBalance(loanId);
+    if (!balance) {
+      console.error("Usuário não possui o token para devolver");
+      alert("Erro: O usuário não possui o livro para devolução.");
+      return;
+    }
     handleAction(loanId, () => returnLoan(contract, signer, loanId));
+  } catch (error) {
+    console.error("Erro ao processar devolução:", error);
+    alert("Erro ao processar a devolução: " + (error.reason || error.message));
+  }
+};
+
+  const checkUserBalance = async (loanId) => {
+    const loan = await getLoanRequest(contract, loanId);
+    const balance = await balanceOf(contract, loan.user, loan.bookId);
+    console.log(`Saldo do usuário ${loan.user} para o bookId ${loan.bookId}: ${balance}`);
+    return balance >= loan.amount;
   };
 
   if (loading) {
@@ -113,6 +138,7 @@ function Emprestimos() {
       </Box>
     );
   }
+ 
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
