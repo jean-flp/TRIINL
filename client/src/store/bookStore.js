@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
-import { getNextBookId, getBook, mint } from "../api/contractFunctions";
+import { getNextBookId, getBook, mint, getLibrary } from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
+import { createMetaDado } from "../utils/ipfsAPI";
 
 export const bookStore = create(
   devtools(
@@ -42,8 +43,11 @@ export const bookStore = create(
           console.error("Erro ao buscar livro:", err);
         }
       },
-      addBook: async (contract, signer, book) => {
+      addBook: async (contract, signer, libAddress, book) => {
         try {
+          const {name} = await getLibrary(contract,libAddress);
+          book.metaUri = await createMetaDado(book,name);
+
           const newBook = await mint(
             contract,
             signer,
@@ -52,7 +56,8 @@ export const bookStore = create(
             book.author,
             book.isbn,
             book.ano,
-            book.uriSuffix
+            book.uriSuffix,
+            book.metaUri
           );
           set((state) => ({
             books: [...state.books, newBook],

@@ -112,8 +112,7 @@ export async function getBookRETIRAR(contract, bookId) {
 
 export async function getLibrary(contract, libraryAddress) {
   try {
-    const [name, sigla, email, isActive] =
-      await contract.getLibrary(libraryAddress);
+    const [name, sigla, email, isActive] = await contract.getLibrary(libraryAddress);
     return { name, sigla, email, isActive };
   } catch (error) {
     console.error("Erro ao obter biblioteca:", error);
@@ -330,12 +329,13 @@ export async function mint(
   author,
   isbn,
   ano,
-  uriSuffix
+  uriSuffix,
+  metaUri
 ) {
   try {
     const tx = await contract
       .connect(signer)
-      .mint(amount, title, author, isbn, ano, uriSuffix);
+      .mint(amount, title, author, isbn, ano, uriSuffix,metaUri);
     await tx.wait(); // Espera a confirmação da transação
     console.log("Mint realizado com sucesso!");
     return tx;

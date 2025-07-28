@@ -64,6 +64,80 @@ export async function putBookCover(bookcover, wallet) {
     throw error;
   }
 }
+export async function createMetaDado(book,lib) {
+
+  try{
+      // {
+  //   "name": "Example Book",
+  //     "description": "A book NFT from the TRIINL library system",
+  //       "image": "https://ipfs.io/ipfs/QmX.../book-image.png",
+  //         "attributes": [
+  //           { "trait_type": "Title", "value": "Example Book" },
+  //           { "trait_type": "Author", "value": "John Doe" },
+  //           { "trait_type": "ISBN", "value": "1234567890" },
+  //           { "trait_type": "Year", "value": "2023" }
+  //         ]
+  // }
+
+  const temp = `${book.title}-${book.isbn}-${lib}`
+  const uniqueName = keccak256(toUtf8Bytes(temp)).slice(2);
+
+  const metadado = {
+    name:book.title,
+    description: `Livro cedido por ${lib}, pessoalmente realize a devolução.`,
+    image: `http://localhost:3000/ipfs/${book.uriSuffix}`,
+    attributes:[
+      {
+        trait_type:"Título",
+        value:book.title,
+      },
+      {
+        trait_type:"Author",
+        value:book.author,
+      },
+      {
+        trait_type:"ISBN",
+        value:book.isbn,
+      },
+      {
+        trait_type:"Ano",
+        value:book.ano,
+      },
+    ]
+  };
+
+  // Converter o objeto JSON em um Buffer
+    const jsonString = JSON.stringify(metadado);
+    const blob = new Blob([jsonString], { type: "application/json" });
+
+     // Criar FormData para enviar ao backend
+    const formData = new FormData();
+    formData.append("file", blob, uniqueName);
+
+    console.log("DATA JSON:", formData);
+
+    const response = await httpPost(
+      "http://localhost:3000/upload/metadado",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("createMetaDado response:", response);
+
+    if (typeof response.name !== "string") {
+      throw new Error("Invalid metaUri from IPFS upload");
+    }
+
+    return response.name;
+  } catch (error) {
+    console.error("Erro ao fazer upload de metadado:", error);
+    throw error;
+  }
+}
 
 // ====================================================================
 export async function getBookCover(uriSuffix) {

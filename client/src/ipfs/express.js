@@ -77,6 +77,81 @@ async function run() {
         });
     }
   });
+  app.post("/upload/metadado", upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) {
+        console.error('Nenhum arquivo enviado no campo "file"');
+        return res.status(400).json({ message: "Nenhum arquivo enviado" });
+      }
+
+      const data = req.file.buffer;
+      const cid = await fs.addBytes(data);
+      const cidStr = cid.toString();
+      const originalname = req.file.originalname;
+
+      hashMap.set(originalname, {
+        cid: cidStr,
+        contentType: req.file.mimetype || "application/json",
+      });
+
+      console.log("Metadado enviado:", {
+        originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        cid: cidStr,
+      });
+      console.log("hashMap atualizado:", Array.from(hashMap.entries()));
+
+      res
+        .status(201)
+        .json({ message: "Metadado uploaded", name: originalname, cid: cidStr });
+    } catch (error) {
+      console.error("Erro ao fazer upload de metadado:", error);
+      res
+        .status(500)
+        .json({
+          message: "Erro ao fazer upload do metadado",
+          error: error.message,
+        });
+    }
+  });
+  app.get("/ipfs/upload/metadado/:name", async (req, res) => {
+    const name = req.params.name;
+    if (!name) {
+      console.error("Nome do metadado não fornecido");
+      return res.status(400).send("Nome do metadado não fornecido");
+    }
+
+    try {
+      const fileData = hashMap.get(name);
+      if (!fileData) {
+        console.error("Metadado não encontrado no hashMap:", name);
+        console.log(
+          "Conteúdo atual do hashMap:",
+          Array.from(hashMap.entries())
+        );
+        return res.status(404).send("Metadado não encontrado");
+      }
+
+      const { cid, contentType } = fileData;
+
+      if (!cid) {
+        console.error("Metadado não encontrado no hashMap:", name);
+        return res.status(404).send("Metadado não encontrado");
+      }
+
+      console.log("Servindo metadado:", { cid, contentType, name });
+
+      res.set("Content-Type", contentType);
+      for await (const chunk of fs.cat(cid)) {
+        res.write(chunk);
+      }
+      res.end();
+    } catch (error) {
+      console.error("Erro ao servir metadado:", error);
+      res.status(500).send(`Erro ao recuperar o metadado: ${error.message}`);
+    }
+  });
   //USO MAIS PARA ARQUIVO TEXTO
   app.get("/fetch", async (req, res) => {
     const filename = req.body.filename;

@@ -82,7 +82,7 @@ const BookForm = () => {
     };
 
     try {
-      await addBook(contract, signer, book);
+      await addBook(contract, signer, currentAccount, book);
       reset();
       setPreview(null);
       setOpen(true);

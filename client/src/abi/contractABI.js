@@ -751,6 +751,11 @@ export const contractABI = [
           "type": "string"
         },
         {
+          "internalType": "string",
+          "name": "metaUri",
+          "type": "string"
+        },
+        {
           "internalType": "address",
           "name": "instituicao",
           "type": "address"
@@ -885,6 +890,11 @@ export const contractABI = [
             {
               "internalType": "string",
               "name": "uri",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "metaUri",
               "type": "string"
             },
             {
@@ -1155,6 +1165,11 @@ export const contractABI = [
         {
           "internalType": "string",
           "name": "uriSuffix",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "metaUri",
           "type": "string"
         }
       ],
