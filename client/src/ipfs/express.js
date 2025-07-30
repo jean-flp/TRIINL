@@ -16,7 +16,7 @@ import cors from "cors";
 const app = express();
 const upload = multer();
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 const hashMap = new Map();
 

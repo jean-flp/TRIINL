@@ -73,6 +73,7 @@ export async function getBook(contract, bookId) {
       isbn: book.isbn,
       ano: book.ano,
       uri: book.uri,
+      metaUri: book.metaUri,
       amount: bookBalance,
       instituicao: book.instituicao,
     };

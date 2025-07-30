@@ -132,7 +132,7 @@ export async function createMetaDado(book,lib) {
       throw new Error("Invalid metaUri from IPFS upload");
     }
 
-    return response.name;
+    return ("http://localhost:3000/ipfs/upload/metadado/" + response.name);
   } catch (error) {
     console.error("Erro ao fazer upload de metadado:", error);
     throw error;
