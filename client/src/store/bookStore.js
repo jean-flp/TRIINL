@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
-import { getNextBookId, getBook, mint, getLibrary } from "../api/contractFunctions";
+import { getNextBookId, getBook, mint, getLibrary, getUri } from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
 import { createMetaDado } from "../utils/ipfsAPI";
 

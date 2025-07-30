@@ -73,7 +73,7 @@ contract TRIINL is
     error InvalidInput(string field);
     error UnauthorizedTransfer(address from, address to);
 
-    constructor(address defaultAdmin) ERC1155("http://localhost:3000/ipfs/") {
+    constructor(address defaultAdmin) ERC1155("https://localhost:3000/ipfs/upload/metadado/") {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(LIBRARY_ROLE, defaultAdmin);
         _setRoleAdmin(LIBRARY_ROLE, DEFAULT_ADMIN_ROLE);
@@ -155,10 +155,15 @@ contract TRIINL is
         return (lib.name, lib.sigla, lib.enderecoEmail, lib.isActive);
     }
 
-    function setURI(
-        string memory newuri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setURI(newuri);
+    // function setURI(
+    //     string memory newuri
+    // ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    //     _setURI(newuri);
+    // }
+
+    function uri(uint256 id) public view override returns (string memory) {
+        require(bytes(books[id].title).length > 0, "Book does not exist");
+        return books[id].metaUri;
     }
 
     function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
