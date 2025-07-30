@@ -123,9 +123,11 @@ export const userStore = create(
             const e = await selfRegisterAsUser(contract, signer, email);
             if (e === 1) {
               set({ role: "user" });
+              return "SUCCESS";
             }
           } else {
             console.log("Domínio de email não associado a nenhuma biblioteca.");
+            return "DOMAIN_NOT_FOUND";
           }
         } catch (err) {
           console.error(

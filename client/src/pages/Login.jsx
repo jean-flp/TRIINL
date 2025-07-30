@@ -9,8 +9,14 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { userStore } from "../store/userLogin";
+import { Snackbar, Alert } from "@mui/material";
 
 function Login() {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const {
@@ -38,9 +44,39 @@ function Login() {
     event.preventDefault();
     if (!validateEmail(email)) {
       setError("Please enter a valid email address.");
+
       return;
     }
-    await associarEmail(contract, signer, email);
+    try {
+      // Captura o resultado da função da store
+      const result = await associarEmail(contract, signer, email);
+
+      // Verifica o resultado e configura o Snackbar
+      if (result === "DOMAIN_NOT_FOUND") {
+        setSnackbarMessage(
+          "Domínio de e-mail não associado a nenhuma biblioteca."
+        );
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      } else if (result === "SUCCESS") {
+        // Você pode opcionalmente mostrar uma mensagem de sucesso também
+        setSnackbarMessage("Cadastro realizado com sucesso!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      // Trata outros erros, como transação rejeitada
+      setSnackbarMessage("Ocorreu um erro ou a transação foi rejeitada.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -57,7 +93,7 @@ function Login() {
         }}
       >
         <Typography component="h1" variant="h5">
-          Sign In
+          Insira seu email institucional
         </Typography>
         <Box
           component="form"
@@ -70,7 +106,7 @@ function Login() {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email Institucional"
             name="email"
             autoComplete="email"
             autoFocus
@@ -85,10 +121,23 @@ function Login() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Sign In
+            Cadastre-se
           </Button>
         </Box>
       </Paper>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
