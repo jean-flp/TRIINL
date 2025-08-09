@@ -83,22 +83,33 @@ export const userStore = create(
       },
       setOtherRole: async (contract, role, account) => {
         const { admin, library, user } = getRoles();
-        switch (role) {
-          case "admin":
-            grantRole(contract, admin, account);
-            break;
-          case "library":
-            grantRole(contract, library, account);
-            break;
-          case "user":
-            grantRole(contract, user, account);
-            break;
-          default:
-            break;
+        try {
+          switch (role) {
+            case "admin":
+              await grantRole(contract, admin, account);
+              return "ADMIN";
+            case "library":
+              await grantRole(contract, library, account);
+              return "LIBRARY";
+            case "user":
+              await grantRole(contract, user, account);
+              return "USER";
+            default:
+              break;
+          }
+        } catch (err) {
+          console.log("Erro ao mudar o papel");
+          return "ERROR";
         }
       },
       registerLibrary: async (contract, libAddress, name, email, sigla) => {
-        await registerLibrary(contract, libAddress, name, email, sigla);
+        try {
+          await registerLibrary(contract, libAddress, name, email, sigla);
+          return "SUCCESS";
+        } catch (err) {
+          console.log("Houve um erro ao criar a biblioteca");
+          return "ERROR";
+        }
       },
       associarEmail: async (contract, signer, email) => {
         try {

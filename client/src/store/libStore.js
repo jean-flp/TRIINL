@@ -46,9 +46,11 @@ export const libStore = create(
       desativarBiblioteca: async (contract, libAddress) => {
         try {
           await deactivateLibrary(contract, libAddress);
-          get().fetchLibs();
+          get().fetchLibs(contract);
+          return "SUCCESS";
         } catch (libError) {
           console.log("Erro ao desativar biblioteca", libError);
+          return "FALHOU";
         }
       },
     }),

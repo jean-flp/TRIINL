@@ -104,8 +104,10 @@ const PauseSwitch = styled((props) => (
 }));
 
 function Admin() {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [isPaused, setIsPaused] = useState(true);
-  const [preview, setPreview] = useState(null);
   const [showSuccessAlertRegistro, setShowSuccessAlertRegistro] =
     useState(false);
   const [showSuccessAlertRole, setShowSuccessAlertRole] = useState(false);
@@ -170,7 +172,7 @@ function Admin() {
 
   const onSubmitRegistro = async (data) => {
     try {
-      await registerLibrary(
+      const result = await registerLibrary(
         contract,
         data.walletLib,
         data.nameLib,
@@ -178,28 +180,47 @@ function Admin() {
         data.emailLib
       );
 
-      resetRegisterRegistro();
-
-      setOpen(true);
-      setShowSuccessAlertRegistro(true);
-
-      setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+      if (result == "SUCCESS") {
+        setSnackbarMessage("A biblioteca foi criada com sucesso");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        resetRegisterRegistro();
+      } else if (result == "ERROR") {
+        setSnackbarMessage("Houve ao criar a biblioteca");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       console.error("Falhou ao tentar registrar biblioteca:", err);
-      setOpen(true);
-      setShowSuccessAlertRegistro(false);
-      setErrorMessage(err.message || "Failed to register library");
-      setTimeout(() => setErrorMessage(""), 4000);
+      setSnackbarMessage("Houve ao criar a biblioteca");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
   };
 
   const onSubmitRole = async (data) => {
     try {
-      await setOtherRole(contract, data.accountRole, data.walletUser);
+      const result = await setOtherRole(
+        contract,
+        data.accountRole,
+        data.walletUser
+      );
+      if (result == "USER") {
+        resetRegisterRole();
+        setSnackbarMessage("O papel foi mudado para usuário");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else if (result == "LIBRARY") {
+        resetRegisterRole();
+        setSnackbarMessage("O papel foi mudado para biblioteca");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else if (result == "ERROR") {
+        setSnackbarMessage("Houve um erro ao mudar o papel");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
       resetRegisterRole();
-      setOpen(true);
-      setShowSuccessAlertRole(true);
-      setTimeout(() => setShowSuccessAlertRole(false), 4000);
     } catch (err) {
       console.error("Falhou ao tentar alterar a role:", err);
     }
@@ -207,25 +228,30 @@ function Admin() {
 
   const onSubmitDesativar = async (data) => {
     try {
-      await desativarBiblioteca(contract, data.walletLib);
+      const result = await desativarBiblioteca(contract, data.walletLib);
 
-      resetRegisterDesativar();
+      if (result == "SUCCESS") {
+        resetRegisterDesativar();
 
-      setOpen(true);
-      setShowSuccessAlertRegistro(true);
-
-      setTimeout(() => setShowSuccessAlertRegistro(false), 4000);
+        setSnackbarMessage("Biblioteca desativada com sucesso!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else if (result == "FALHOU") {
+        setSnackbarMessage("Houve um erro ao desativar a biblioteca");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       console.error("Falhou ao tentar desativar:", err);
     }
   };
 
-  const handleClose = (event, reason) => {
+  const handleCloseSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
 
-    setOpen(false);
+    setSnackbarOpen(false);
   };
 
   const handlePauseToggle = async (event) => {
@@ -235,18 +261,24 @@ function Admin() {
     if (checked) {
       // Switch está ON
       console.log("Contrato foi DESPAUSADO");
-      await unpause(contract,signer);
+      await unpause(contract, signer);
+      setSnackbarMessage("O Contrato foi despausado");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
     } else {
       // Switch está OFF
       console.log("Contrato foi PAUSADO");
-      await pauseContract(contract,signer);
 
+      await pauseContract(contract, signer);
+      setSnackbarMessage("O Contrato foi pausado");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
     }
   };
   const _isPausedFetch = async () => {
     try {
       const paused = await _isPaused(contract);
-      console.log("valor paused",paused)
+      console.log("valor paused", paused);
       setIsPaused(!paused);
     } catch (err) {
       console.error("Failed to fetch pause status:", err);
@@ -272,26 +304,6 @@ function Admin() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            {showSuccessAlertRegistro && (
-              <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-              >
-                <Alert severity="success">
-                  Biblioteca cadastrada com sucesso!
-                </Alert>
-              </Snackbar>
-            )}
-            {errorMessage && (
-              <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-              >
-                <Alert severity="error">{errorMessage}</Alert>
-              </Snackbar>
-            )}
             <form onSubmit={handleSubmitRegistro(onSubmitRegistro)}>
               <Stack spacing={2}>
                 <TextField
@@ -334,17 +346,6 @@ function Admin() {
             <Typography component="span">Desativar Biblioteca</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            {showSuccessAlertRegistro && (
-              <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-              >
-                <Alert severity="success">
-                  Biblioteca desativada com sucesso!
-                </Alert>
-              </Snackbar>
-            )}
             <form onSubmit={handleSubmitDesativar(onSubmitDesativar)}>
               <Stack spacing={2}>
                 <TextField
@@ -396,27 +397,16 @@ function Admin() {
         <Accordion>
           <AccordionSummary aria-controls="panel1-content" id="panel1-header">
             <Typography component="span">
-              Alteração de Perfil de Usuárrio
+              Alteração de Papel de Usuárrio
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            {showSuccessAlertRole && (
-              <Snackbar
-                open={open}
-                autoHideDuration={6000}
-                onClose={handleClose}
-              >
-                <Alert severity="success">
-                  Atribuição de perfil feita com sucesso!
-                </Alert>
-              </Snackbar>
-            )}
             <form onSubmit={handleSubmitRole(onSubmitRole)}>
               <Stack spacing={2}>
                 <TextField
                   select
                   {...registerRole("accountRole")}
-                  label="Perfil Conta"
+                  label="Papel Conta"
                   defaultValue=""
                   error={!!errorsRole.accountRole}
                   helperText={errorsRole.accountRole?.message}
@@ -443,6 +433,19 @@ function Admin() {
           </AccordionDetails>
         </Accordion>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
