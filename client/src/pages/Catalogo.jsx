@@ -15,6 +15,8 @@ import {
   CardActions,
   Grid,
   Skeleton,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { userStore } from "../store/userLogin";
 import { bookStore } from "../store/bookStore";
@@ -117,6 +119,9 @@ function BrowseLibrary() {
 
   const [selectedLibrary, setSelectedLibrary] = useState("");
   const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const { showSnackbar, SnackbarComponent } = useSnackbar();
   const [activeLibraries, setActiveLibraries] = useState([]);
 
@@ -132,6 +137,9 @@ function BrowseLibrary() {
       } catch (error) {
         console.error("Failed to load library data:", error);
         showSnackbar("Failed to load data from the library.", "error");
+        setSnackbarMessage("Houve ao criar o livro");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       } finally {
         setLoading(false);
       }
@@ -139,7 +147,6 @@ function BrowseLibrary() {
     loadData();
     // Apenas 'contract' é necessário. As funções são estáveis.
   }, [contract]);
-  // This useEffect now correctly runs *after* libs are fetched
   useEffect(() => {
     const calculateActiveLibraries = async () => {
       let filteredLibs = [];
@@ -181,16 +188,32 @@ function BrowseLibrary() {
     setSelectedLibrary(event.target.value);
   };
 
-  const handleLoanBook = (book) => {
+  const handleLoanBook = async (book) => {
     try {
-      requestLoan(contract, signer, book);
-      showSnackbar(`Solicitação para "${book.title}" enviada!`, "success");
+      const result = await requestLoan(contract, signer, book);
+      if (result == "SUCCESS") {
+        setSnackbarMessage("O empréstimo foi solicitado com sucesso");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else if (result == "ERROR") {
+        setSnackbarMessage("Houve ao solicitar empréstimo");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       showSnackbar(
         "Ocorreu um erro ao tentar solicitar um empréstimo!",
         "error"
       );
     }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setSnackbarOpen(false);
   };
 
   return (
@@ -245,7 +268,19 @@ function BrowseLibrary() {
           </Typography>
         )}
       </Box>
-      <SnackbarComponent />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }

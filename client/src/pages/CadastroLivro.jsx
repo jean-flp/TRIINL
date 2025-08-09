@@ -49,8 +49,6 @@ const BookForm = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [isPaused, setIsPaused] = useState(true);
-  const [open, setOpen] = useState(false);
   const defaultValues = {
     title: "",
     author: "",
@@ -92,7 +90,7 @@ const BookForm = () => {
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         reset();
-        reset();
+        setPreview(null);
       } else if (result == "ERROR") {
         setSnackbarMessage("Houve ao criar o livro");
         setSnackbarSeverity("error");
@@ -113,10 +111,7 @@ const BookForm = () => {
 
   return (
     <>
-      <Paper
-        elevation={3} // Adds a subtle shadow
-        sx={{ p: 4, borderRadius: 2 }} // p: 4 adds padding on all sides
-      >
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack spacing={3}>
             <Typography variant="h5" component="h1" gutterBottom>

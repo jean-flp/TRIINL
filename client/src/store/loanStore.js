@@ -75,40 +75,50 @@ export const loanStore = create(
             loans: [...state.loans, newLoan],
           }));
           get().fetchLoans(contract, signer);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao criar um emprestimo:", err);
+          return "ERROR";
         }
       },
       acceptLoan: async (contract, loanId, signer) => {
         try {
           await approveLoan(contract, loanId, signer);
           get().fetchLoans(contract, signer);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao aprovar um emprestimo:", err);
+          return "ERROR";
         }
       },
       returnLoan: async (contract, signer, loanId) => {
         try {
           await returnLoan(contract, signer, loanId);
           get().fetchLoans(contract, signer);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao retornar um emprestimo:", err);
+          return "ERROR";
         }
       },
       loanWithUser: async (contract, signer, loanId) => {
         try {
           await bookWithUser(contract, signer, loanId);
           get().fetchLoans(contract, signer);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao atualizar status de um emprestimo:", err);
+          return "ERROR";
         }
       },
       rejectLoan: async (contract, signer, loanId) => {
         try {
           await rejectLoan(contract, signer, loanId);
           get().fetchLoans(contract, signer);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao rejeitar de um emprestimo:", err);
+          return "ERROR";
         }
       },
     }),
