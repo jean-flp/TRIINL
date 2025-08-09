@@ -9,6 +9,8 @@ import {
   Button,
   Container,
   Chip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { loanStore } from "../store/loanStore";
@@ -24,6 +26,9 @@ const statusConfig = {
 };
 
 function Emprestimos() {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const {
     loans,
@@ -77,8 +82,16 @@ function Emprestimos() {
     setActionLoading((prev) => ({ ...prev, [loanId]: true }));
     try {
       await actionFunc();
+
+      setSnackbarMessage("O status do empréstimo foi atualizado com sucesso");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+
       await fetchLoans(contract);
     } catch (error) {
+      setSnackbarMessage("Houve ao criar o livro");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
       console.error("Houve um erro na transação do empréstimo: ", error);
     } finally {
       setActionLoading((prev) => ({ ...prev, [loanId]: false }));
@@ -108,26 +121,38 @@ function Emprestimos() {
   // };
 
   const handleReturnLoan = async (loanId) => {
-  try {
-    const loan = await getLoanRequest(contract, loanId);
-    console.log("EMPRESTIMO:",loan);
-    const balance = await checkUserBalance(loanId);
-    if (!balance) {
-      console.error("Usuário não possui o token para devolver");
-      alert("Erro: O usuário não possui o livro para devolução.");
+    try {
+      const loan = await getLoanRequest(contract, loanId);
+      console.log("EMPRESTIMO:", loan);
+      const balance = await checkUserBalance(loanId);
+      if (!balance) {
+        console.error("Usuário não possui o token para devolver");
+        alert("Erro: O usuário não possui o livro para devolução.");
+        return;
+      }
+      handleAction(loanId, () => returnLoan(contract, signer, loanId));
+    } catch (error) {
+      console.error("Erro ao processar devolução:", error);
+      alert(
+        "Erro ao processar a devolução: " + (error.reason || error.message)
+      );
+    }
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === "clickaway") {
       return;
     }
-    handleAction(loanId, () => returnLoan(contract, signer, loanId));
-  } catch (error) {
-    console.error("Erro ao processar devolução:", error);
-    alert("Erro ao processar a devolução: " + (error.reason || error.message));
-  }
-};
+
+    setSnackbarOpen(false);
+  };
 
   const checkUserBalance = async (loanId) => {
     const loan = await getLoanRequest(contract, loanId);
     const balance = await balanceOf(contract, loan.user, loan.bookId);
-    console.log(`Saldo do usuário ${loan.user} para o bookId ${loan.bookId}: ${balance}`);
+    console.log(
+      `Saldo do usuário ${loan.user} para o bookId ${loan.bookId}: ${balance}`
+    );
     return balance >= loan.amount;
   };
 
@@ -138,7 +163,6 @@ function Emprestimos() {
       </Box>
     );
   }
- 
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -244,6 +268,19 @@ function Emprestimos() {
           </Accordion>
         ))
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
