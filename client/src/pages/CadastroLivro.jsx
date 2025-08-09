@@ -46,6 +46,10 @@ const schema = yup.object().shape({
 });
 
 const BookForm = () => {
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [isPaused, setIsPaused] = useState(true);
   const [open, setOpen] = useState(false);
   const defaultValues = {
     title: "",
@@ -82,24 +86,29 @@ const BookForm = () => {
     };
 
     try {
-      await addBook(contract, signer, currentAccount, book);
-      reset();
-      setPreview(null);
-      setOpen(true);
-      setShowSuccessAlertRegistro(true);
-
-      setTimeout(() => setOpen(false), 4000);
+      const result = await addBook(contract, signer, currentAccount, book);
+      if (result == "SUCCESS") {
+        setSnackbarMessage("O livro foi criado com sucesso");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        reset();
+        reset();
+      } else if (result == "ERROR") {
+        setSnackbarMessage("Houve ao criar o livro");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (err) {
       console.error("Erro ao salvar livro:", err);
     }
   };
 
-  const handleClose = (event, reason) => {
+  const handleCloseSnackbar = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
 
-    setOpen(false);
+    setSnackbarOpen(false);
   };
 
   return (
@@ -192,15 +201,20 @@ const BookForm = () => {
           </Stack>
         </form>
       </Paper>
-      
-        <Snackbar
-          open={open}
-          autoHideDuration={6000}
-          onClose={handleClose}
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
         >
-          <Alert severity="success">Livro cadastrado com sucesso!</Alert>
-        </Snackbar>
-      
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

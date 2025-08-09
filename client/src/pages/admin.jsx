@@ -108,11 +108,6 @@ function Admin() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [isPaused, setIsPaused] = useState(true);
-  const [showSuccessAlertRegistro, setShowSuccessAlertRegistro] =
-    useState(false);
-  const [showSuccessAlertRole, setShowSuccessAlertRole] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     contract,

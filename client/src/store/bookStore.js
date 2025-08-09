@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { ethers } from "ethers";
-import { getNextBookId, getBook, mint, getLibrary, getUri } from "../api/contractFunctions";
+import {
+  getNextBookId,
+  getBook,
+  mint,
+  getLibrary,
+  getUri,
+} from "../api/contractFunctions";
 import { devtools } from "zustand/middleware";
 import { createMetaDado } from "../utils/ipfsAPI";
 
@@ -45,8 +51,8 @@ export const bookStore = create(
       },
       addBook: async (contract, signer, libAddress, book) => {
         try {
-          const {name} = await getLibrary(contract,libAddress);
-          book.metaUri = await createMetaDado(book,name);
+          const { name } = await getLibrary(contract, libAddress);
+          book.metaUri = await createMetaDado(book, name);
 
           const newBook = await mint(
             contract,
@@ -63,8 +69,10 @@ export const bookStore = create(
             books: [...state.books, newBook],
           }));
           get().fetchBooks(contract);
+          return "SUCCESS";
         } catch (err) {
           console.error("Erro ao criar um livro:", err);
+          return "ERROR";
         }
       },
     }),
