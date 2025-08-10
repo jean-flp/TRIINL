@@ -73,7 +73,7 @@ contract TRIINL is
     error InvalidInput(string field);
     error UnauthorizedTransfer(address from, address to);
 
-    constructor(address defaultAdmin) ERC1155("https://localhost:3000/ipfs/upload/metadado/") {
+    constructor(address defaultAdmin) ERC1155("http://localhost:3000/ipfs/upload/metadado/") {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(LIBRARY_ROLE, defaultAdmin);
         _setRoleAdmin(LIBRARY_ROLE, DEFAULT_ADMIN_ROLE);
@@ -229,18 +229,18 @@ contract TRIINL is
         emit BookCreated(id, title, uriSuffix);
     }
 
-    //provavelmente retirar pois aluno retornara o livror para
-    function mintRestock(
-        uint256 amount,
-        uint256 id
-    ) external onlyRole(LIBRARY_ROLE) {
-        require(
-            books[id].instituicao == msg.sender,
-            "Book institution is different from sender"
-        ); //pertencimento da token ao sender
-        _mint(msg.sender, id, amount, "");
-        emit BookRestock(id, msg.sender, amount);
-    }
+    // //provavelmente retirar pois aluno retornara o livror para
+    // function mintRestock(
+    //     uint256 amount,
+    //     uint256 id
+    // ) external onlyRole(LIBRARY_ROLE) {
+    //     require(
+    //         books[id].instituicao == msg.sender,
+    //         "Book institution is different from sender"
+    //     ); //pertencimento da token ao sender
+    //     _mint(msg.sender, id, amount, "");
+    //     emit BookRestock(id, msg.sender, amount);
+    // }
 
     function getBook(uint256 bookId) external view returns (Book memory) {
         require(bytes(books[bookId].title).length > 0, "Book does not exist");
@@ -284,10 +284,9 @@ contract TRIINL is
             "Insufficient books"
         );
 
-        // Mudando para transfer ao inves de burn
+        
         safeTransferFrom(msg.sender, loan.user, loan.bookId, loan.amount, "");
 
-        // Atualiza o status do empréstimo para APPROVED
         loan.status = 1;
         emit LoanApproved(loanId, msg.sender);
     }
