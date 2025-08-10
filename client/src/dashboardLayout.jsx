@@ -17,13 +17,6 @@ import BallotIcon from "@mui/icons-material/Ballot";
 const NAVIGATION_ADMIN = [
   { kind: "header", title: "Área Usuário" },
   { segment: "catalogo", title: "Catálogo", icon: <CollectionsBookmarkIcon /> },
-  { segment: "emprestimos", title: "Empréstimos", icon: <BallotIcon /> },
-  { kind: "header", title: "Área Biblioteca" },
-  {
-    segment: "cadastroLivro",
-    title: "Cadastro de Livros",
-    icon: <AssignmentAddIcon />,
-  },
   { kind: "header", title: "Administrador" },
   { segment: "admin", title: "Área Administrador", icon: <AnalyticsIcon /> },
 ];

@@ -93,8 +93,6 @@ function AppRouter() {
                 children: [
                   { index: true, Component: landingPage },
                   { path: "/catalogo", Component: Catalogo },
-                  { path: "/emprestimos", Component: Emprestimos },
-                  { path: "/cadastroLivro", Component: BookForm },
                   { path: "/admin", Component: Admin },
                   { path: "*", element: <NavigationHandler /> },
                 ],
